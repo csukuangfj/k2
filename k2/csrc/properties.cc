@@ -1,7 +1,5 @@
 // k2/csrc/properties.cc
 
-// Copyright (c)  2020  Daniel Povey
-
 // See ../../LICENSE for clarification regarding multiple authors
 
 #include "k2/csrc/properties.h"
