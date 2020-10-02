@@ -114,7 +114,7 @@ class Fsa(object):
 
         Args:
           negate_scores:
-            Optional. If true, we negate the score during the conversion,
+            Optional. If true, we negate the score during the conversion.
 
         Returns:
           A string representation of the Fsa.
