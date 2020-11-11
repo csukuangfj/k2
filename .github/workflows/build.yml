@@ -41,16 +41,11 @@ jobs:
       # refer to https://github.com/actions/checkout
       - uses: actions/checkout@v2
 
-      - uses: actions/download-artifact@v2
-        with:
-          name: cuda-toolkit-10.2
-
       - name: downalod cuda toolkit 10.2
         continue-on-error: true
         uses: actions/download-artifact@v2
         with:
           name: cuda-toolkit-10.2
-
 
       - name: downalod cuda-toolkit ${{ matrix.cuda }}
         continue-on-error: true
