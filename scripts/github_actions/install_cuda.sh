@@ -27,6 +27,8 @@ esac
 if [ ! -f $filename ]; then
   echo "Downloading $url"
   curl -LSs -O $url
+else
+  echo "Use cached $filename"
 fi
 chmod +x ./$filename
 sudo ./$filename --toolkit --silent
