@@ -41,10 +41,21 @@ jobs:
       # refer to https://github.com/actions/checkout
       - uses: actions/checkout@v2
 
+      - uses: actions/download-artifact@v2
+          with:
+          name: cuda-toolkit-10.2
+
+      - uses: actions/download-artifact@v2
+          with:
+          name: cuda-toolkit-10.1
+
       - name: Install CUDA
         env:
           cuda: ${{ matrix.cuda }}
         run: |
+          echo "pwd:"
+          pwd
+          ls -l
           source ./scripts/github_actions/install_cuda.sh
           echo "CUDA_HOME=${CUDA_HOME}" >> $GITHUB_ENV
           echo "${CUDA_HOME}/bin" >> $GITHUB_PATH

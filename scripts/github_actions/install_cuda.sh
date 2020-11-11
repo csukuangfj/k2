@@ -24,7 +24,10 @@ case "$cuda" in
 esac
 
 
-curl -LSs -O $url
+if [ ! -f $filename ]; then
+  echo "Downloading $url"
+  curl -LSs -O $url
+fi
 chmod +x ./$filename
 sudo ./$filename --toolkit --silent
 
