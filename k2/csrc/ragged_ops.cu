@@ -425,7 +425,6 @@ inline void GetOldAndNewOffsets(RaggedShape &src,
 RaggedShape Index(RaggedShape &src, const Array1<int32_t> &new2old,
                   Array1<int32_t> *elem_indexes /*=nullptr*/) {
   NVTX_RANGE(K2_FUNC);
-  K2_LOG(INFO) << "index";
   ContextPtr c = src.Context();
   bool is_cpu = (c->GetDeviceType() == kCpu);
   K2_CHECK(IsCompatible(src, new2old));
@@ -435,23 +434,19 @@ RaggedShape Index(RaggedShape &src, const Array1<int32_t> &new2old,
     if (elem_indexes) *elem_indexes = Array1<int32_t>(c, 0);
     return EmptyRaggedShape(c, num_axes);
   }
-  K2_LOG(INFO) << "index";
 
   Array1<int32_t *> src_row_splits_ptrs = GetRowSplitsPtr(src);
   Array2<int32_t> old_offsets,  // num_axes by ans_dim0
       new_offsets;              // num_axes by (ans_dim0 + 1).
   GetOldAndNewOffsets(src, src_row_splits_ptrs, new2old, &old_offsets,
                       &new_offsets);
-  K2_LOG(INFO) << "index";
 
   Array1<int32_t> tot_sizes_out =
       Array1<int32_t>(new_offsets.Col(ans_dim0)).To(GetCpuContext());
 
   if (elem_indexes) *elem_indexes = Array1<int32_t>(c, tot_sizes_out.Back());
-  K2_LOG(INFO) << "index";
 
   RaggedShape ans = RaggedShapeFromTotSizes(c, num_axes, tot_sizes_out.Data());
-  K2_LOG(INFO) << "index";
 
   auto old_offsets_acc = old_offsets.Accessor(),
        new_offsets_acc = new_offsets.Accessor();
@@ -470,10 +465,8 @@ RaggedShape Index(RaggedShape &src, const Array1<int32_t> &new2old,
     GetTaskRedirect(c, ans_dim0, new_offsets_ptr, task_redirect_ptr);
   }
 
-  K2_LOG(INFO) << "index";
   for (int32_t axis = 0; axis < num_axes - 1; ++axis) {
     {
-      K2_LOG(INFO) << "index axis: " << axis;
       int32_t *this_new_row_splits = ans.RowSplits(axis + 1).Data();
       const int32_t *this_old_row_splits = src.RowSplits(axis + 1).Data();
 
@@ -675,36 +668,28 @@ RaggedShape Append(int32_t axis, int32_t num_srcs, RaggedShape **src) {
     K2_CHECK_EQ(num_axes, src[i]->NumAxes());
     K2_CHECK(IsCompatible(*src[0], *src[i]));
   }
-  K2_LOG(INFO) << "append";
 
   // `offsets` will be on CPU for now.
   Array2<int32_t> offsets = GetOffsets(num_srcs, src);
   auto offsets_acc = offsets.Accessor();
-  K2_LOG(INFO) << "append";
 
   std::vector<int32_t> tot_sizes_out(num_axes);
   for (int32_t axis = 0; axis < num_axes; ++axis) {
-    K2_LOG(INFO) << "append axis " << axis;
     tot_sizes_out[axis] = offsets_acc(axis + 1, num_srcs);
   }
 
   RaggedShape ans = RaggedShapeFromTotSizes(c, num_axes, tot_sizes_out.data());
-  K2_LOG(INFO) << "append";
 
   Array2<int32_t *> src_row_splits, src_row_ids;
   GetRowInfoMulti(num_srcs, src, &src_row_splits, &src_row_ids);
-  K2_LOG(INFO) << "append";
   auto src_row_splits_acc = src_row_splits.Accessor(),
        src_row_ids_acc = src_row_ids.Accessor();
-  K2_LOG(INFO) << "append";
   offsets = offsets.To(c);
   offsets_acc = offsets.Accessor();  // on GPU now (if we're using one)
-  K2_LOG(INFO) << "append";
 
   ParallelRunner pr(c);
   std::vector<cudaStream_t> streams(num_axes);
   int32_t num_jobs = num_srcs * 2;
-  K2_LOG(INFO) << "append";
 
   // task_redirects is a device array (if using GPU).
   // We have `num_axes - 1` different sets of row_splits/row_ids to
@@ -715,7 +700,6 @@ RaggedShape Append(int32_t axis, int32_t num_srcs, RaggedShape **src) {
   // populate task_redirects (these allocate blocks of threads roughly
   // proportionally to the amount of data to process from this source.
   for (int32_t axis = 0; axis < num_axes; ++axis) {
-    K2_LOG(INFO) << "append axis " << axis;
     streams[axis] = pr.NewStream();
     With w(streams[axis]);
     const int32_t *offsets = offsets_acc.Row(axis + 1);
@@ -724,7 +708,6 @@ RaggedShape Append(int32_t axis, int32_t num_srcs, RaggedShape **src) {
   }
 
   for (int32_t axis = 0; axis < num_axes - 1; axis++) {
-    K2_LOG(INFO) << "append axis " << axis;
     // first set the row-splits.
     int32_t **this_src_row_splits = src_row_splits_acc.Row(axis),
             **this_src_row_ids = src_row_ids_acc.Row(axis);
@@ -759,7 +742,6 @@ RaggedShape Append(int32_t axis, int32_t num_srcs, RaggedShape **src) {
     EvalWithRedirect(streams[axis], num_jobs, task_redirects_acc.Row(axis),
                      min_threads_per_job, tot_work, target_num_loops,
                      lambda_set_row_splits);
-    K2_LOG(INFO) << "append ";
 
     {  // set the row-ids
       auto lambda_set_row_ids = [=] __host__ __device__(
@@ -782,11 +764,9 @@ RaggedShape Append(int32_t axis, int32_t num_srcs, RaggedShape **src) {
               target_num_loops = (tot_work > 1000000 ? 4 : 2);
       // TODO(haowen): maybe we should launch kernels for row_splits and row_ids
       // in different streams
-      K2_LOG(INFO) << "append ";
       EvalWithRedirect(streams[axis + 1], num_jobs,
                        task_redirects_acc.Row(axis + 1), min_threads_per_job,
                        tot_work, target_num_loops, lambda_set_row_ids);
-      K2_LOG(INFO) << "append ";
     }
   }
   return ans;

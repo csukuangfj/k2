@@ -628,16 +628,13 @@ class Array2 {
   // Return one column of this Array2, as a Tensor.  (Will point to the
   // same data).
   Tensor Col(int32_t i) {
-    K2_LOG(INFO) << "col " << i;
     NVTX_RANGE(K2_FUNC);
     K2_CHECK_LT(static_cast<uint32_t>(i), static_cast<uint32_t>(dim1_));
     Dtype type = DtypeOf<ValueType>::dtype;
     std::vector<int32_t> dims = {dim0_};
     std::vector<int32_t> strides = {elem_stride0_};
     Shape shape(dims, strides);
-    K2_LOG(INFO) << "col " << i;
     auto ans = Tensor(type, shape, region_, byte_offset_ + (ElementSize() * i));
-    K2_LOG(INFO) << "col " << i;
     return ans;
   }
 

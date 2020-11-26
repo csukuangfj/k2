@@ -22,7 +22,7 @@ jobs:
         os: [ubuntu-18.04]
         cuda: ["10.1", "10.2"]
         # cuda: ["10.2"]
-        gcc: ["5", "7"]
+        gcc: ["7"]
         # torch: ["1.6.0", "1.7.0"]
         torch: ["1.6.0"]
         python-version: [3.6]
@@ -106,6 +106,6 @@ jobs:
           # we cannot use -j here because of limited RAM
           # of the VM provided by GitHub actions
           # make
-          make cu_fsa_algo_test
+          make
           valgrind ./bin/cu_fsa_algo_test
           ctest --output-on-failure
