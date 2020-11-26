@@ -893,11 +893,19 @@ RaggedShape Transpose(RaggedShape &src, Array1<int32_t> *value_indexes) {
   // to the first index into src_no_axis0.
   Array1<int32_t> renumbering(c, src_tot_size1);
   int32_t *renumbering_data = renumbering.Data();
-  auto lambda_set_renumbering = [=] __host__ __device__(int32_t i) {
-    int32_t j = i % src_dim0, k = i / src_dim0, i_old = j * src_dim1 + k;
-    renumbering_data[i] = i_old;
-  };
-  Eval(c, src_tot_size1, lambda_set_renumbering);
+
+  if (c->GetDeviceType() == kCpu) {
+    for (int32_t i = 0; i != src_tot_size1; ++i) {
+      int32_t j = i % src_dim0, k = i / src_dim0, i_old = j * src_dim1 + k;
+      renumbering_data[i] = i_old;
+    }
+  } else {
+    auto lambda_set_renumbering = [=] __device__(int32_t i) {
+      int32_t j = i % src_dim0, k = i / src_dim0, i_old = j * src_dim1 + k;
+      renumbering_data[i] = i_old;
+    };
+    Eval(c, src_tot_size1, lambda_set_renumbering);
+  }
 
   RaggedShape src_no_axis0_renumbered =
       Index(src_no_axis0, renumbering, value_indexes);
@@ -1129,19 +1137,32 @@ RaggedShape ChangeSublistSize(RaggedShape &src, int32_t size_delta) {
 
   {
     ParallelRunner pr(c);
-    {
+    if (c->GetDeviceType() == kCpu) {
+      for (int32_t idx0 = 0; idx0 <= num_rows; ++idx0)
+        row_splits_data[idx0] = src_row_splits_data[idx0] + size_delta * idx0;
+    } else {
       With w(pr.NewStream());
-      auto lambda_set_row_splits =
-          [=] __host__ __device__(int32_t idx0) -> void {
+      auto lambda_set_row_splits = [=] __device__(int32_t idx0) -> void {
         row_splits_data[idx0] = src_row_splits_data[idx0] + size_delta * idx0;
       };
-      Eval(c, num_rows + 1, lambda_set_row_splits);
+      EvalDevice(c, num_rows + 1, lambda_set_row_splits);
     }
 
-    {
+    if (c->GetDeviceType() == kCpu) {
+      for (int32_t src_idx01 = 0; src_idx01 != src_num_elems; ++src_idx01) {
+        int32_t src_idx0 = src_row_ids_data[src_idx01],
+                src_idx0x = src_row_splits_data[src_idx0],
+                src_idx1 = src_idx01 - src_idx0x,
+                new_idx0x = row_splits_data[src_idx0],
+                new_idx0x_next = row_splits_data[src_idx0 + 1],
+                new_idx01 = new_idx0x + src_idx1;
+        // it's only necessary to guard the next statement with in 'if' because
+        // size_delta might be negative.
+        if (new_idx01 < new_idx0x_next) row_ids_data[new_idx01] = src_idx0;
+      }
+    } else {
       With w(pr.NewStream());
-      auto lambda_set_row_ids1 =
-          [=] __host__ __device__(int32_t src_idx01) -> void {
+      auto lambda_set_row_ids1 = [=] __device__(int32_t src_idx01) -> void {
         int32_t src_idx0 = src_row_ids_data[src_idx01],
                 src_idx0x = src_row_splits_data[src_idx0],
                 src_idx1 = src_idx01 - src_idx0x,
@@ -1152,22 +1173,39 @@ RaggedShape ChangeSublistSize(RaggedShape &src, int32_t size_delta) {
         // size_delta might be negative.
         if (new_idx01 < new_idx0x_next) row_ids_data[new_idx01] = src_idx0;
       };
-      Eval(c, src_num_elems, lambda_set_row_ids1);
+      EvalDevice(c, src_num_elems, lambda_set_row_ids1);
     }
+
     if (size_delta > 0) {
-      // This sets the row-ids that are not set by lambda_set_row_ids1.
-      With w(pr.NewStream());
-      auto lambda_set_row_ids2 = [=] __host__ __device__(int32_t i) -> void {
-        int32_t idx0 = i / size_delta, n = i % size_delta, next_idx0 = idx0 + 1;
-        // The following formula is the same as the one in
-        // lambda_set_row_splits; we want to compute the new value of
-        // row_splits_data[next_idx0] without waiting for that kernel to
-        // terminate.
-        int32_t next_idx0x =
-            src_row_splits_data[next_idx0] + size_delta * next_idx0;
-        row_ids_data[next_idx0x - 1 - n] = idx0;
-      };
-      Eval(c, num_rows * size_delta, lambda_set_row_ids2);
+      if (c->GetDeviceType() == kCpu) {
+        int32_t num_rows_mul_size_delta = num_rows * size_delta;
+        for (int32_t i = 0; i != num_rows_mul_size_delta; ++i) {
+          int32_t idx0 = i / size_delta, n = i % size_delta,
+                  next_idx0 = idx0 + 1;
+          // The following formula is the same as the one in
+          // lambda_set_row_splits; we want to compute the new value of
+          // row_splits_data[next_idx0] without waiting for that kernel to
+          // terminate.
+          int32_t next_idx0x =
+              src_row_splits_data[next_idx0] + size_delta * next_idx0;
+          row_ids_data[next_idx0x - 1 - n] = idx0;
+        }
+      } else {
+        // This sets the row-ids that are not set by lambda_set_row_ids1.
+        With w(pr.NewStream());
+        auto lambda_set_row_ids2 = [=] __host__ __device__(int32_t i) -> void {
+          int32_t idx0 = i / size_delta, n = i % size_delta,
+                  next_idx0 = idx0 + 1;
+          // The following formula is the same as the one in
+          // lambda_set_row_splits; we want to compute the new value of
+          // row_splits_data[next_idx0] without waiting for that kernel to
+          // terminate.
+          int32_t next_idx0x =
+              src_row_splits_data[next_idx0] + size_delta * next_idx0;
+          row_ids_data[next_idx0x - 1 - n] = idx0;
+        };
+        EvalDevice(c, num_rows * size_delta, lambda_set_row_ids2);
+      }
     }
     // make the ParallelRunner go out of scope (should do this before any
     // validation code that gets invoked by the constructor of RaggedShape
