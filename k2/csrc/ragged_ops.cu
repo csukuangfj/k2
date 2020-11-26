@@ -287,13 +287,23 @@ RaggedShape Unsqueeze(const RaggedShape &src, int32_t axis) {
     row_ids_dim = src.Dim0();  // e.g. [ 0 0 0 0 0 ]
     mem = Array1<int32_t>(c, row_splits_dim + row_ids_dim);
     int32_t *mem_data = mem.Data();
-    auto lambda_set_mem = [=] __host__ __device__(int32_t i) -> void {
-      if (i == 1)
-        mem_data[i] = row_ids_dim;
-      else
-        mem_data[i] = 0;
-    };
-    Eval(c, mem.Dim(), lambda_set_mem);
+    if (c->GetDeviceType() == kCpu) {
+      int32_t mem_dim = mem.Dim();
+      for (int32_t i = 0; i != mem_dim; ++i) {
+        if (i == 1)
+          mem_data[i] = row_ids_dim;
+        else
+          mem_data[i] = 0;
+      }
+    } else {
+      auto lambda_set_mem = [=] __device__(int32_t i) -> void {
+        if (i == 1)
+          mem_data[i] = row_ids_dim;
+        else
+          mem_data[i] = 0;
+      };
+      EvalDevice(c, mem.Dim(), lambda_set_mem);
+    }
   } else {
     int32_t tot_size = src.TotSize(axis);
     row_splits_dim = tot_size + 1;
@@ -1226,7 +1236,7 @@ RaggedShape ChangeSublistSize(RaggedShape &src, int32_t size_delta) {
       } else {
         // This sets the row-ids that are not set by lambda_set_row_ids1.
         With w(pr.NewStream());
-        auto lambda_set_row_ids2 = [=] __host__ __device__(int32_t i) -> void {
+        auto lambda_set_row_ids2 = [=] __device__(int32_t i) -> void {
           int32_t idx0 = i / size_delta, n = i % size_delta,
                   next_idx0 = idx0 + 1;
           // The following formula is the same as the one in

@@ -333,8 +333,7 @@ Array1<T> Append(int32_t num_arrays, const Array1<T> **src) {
       // elements being processed is small. What we're saying is that the
       // arrays' sizes are fairly balanced, so we launch with a simple
       // rectangular kernel.
-      auto lambda_set_data = [=] __host__ __device__(int32_t i,
-                                                     int32_t j) -> void {
+      auto lambda_set_data = [=] __device__(int32_t i, int32_t j) -> void {
         int32_t row_start = row_splits_data[i],
                 row_end = row_splits_data[i + 1];
         const T *src_ptr = src_ptrs_data[i];
@@ -342,7 +341,7 @@ Array1<T> Append(int32_t num_arrays, const Array1<T> **src) {
           ans_data[row_start + j] = src_ptr[j];
         }
       };
-      Eval2(c, num_arrays, max_dim, lambda_set_data);
+      Eval2Device(c, num_arrays, max_dim, lambda_set_data);
     } else {
       int32_t block_dim = 256;
       while (block_dim * 4 < avg_input_size && block_dim < 8192) block_dim *= 2;
@@ -369,8 +368,7 @@ Array1<T> Append(int32_t num_arrays, const Array1<T> **src) {
       Array1<uint64_t> index_map_gpu(c, index_map);
       const uint64_t *index_map_data = index_map_gpu.Data();
 
-      auto lambda_set_data_blocks = [=] __host__ __device__(int32_t i,
-                                                            int32_t j) {
+      auto lambda_set_data_blocks = [=] __device__(int32_t i, int32_t j) {
         uint64_t index = index_map_data[i];
         uint32_t orig_i = static_cast<uint32_t>(index),
                  block_index = static_cast<uint32_t>(index >> 32);
@@ -382,7 +380,7 @@ Array1<T> Append(int32_t num_arrays, const Array1<T> **src) {
           ans_data[row_start + orig_j] = src_ptr[orig_j];
         }
       };
-      Eval2(c, index_map_gpu.Dim(), block_dim, lambda_set_data_blocks);
+      Eval2Device(c, index_map_gpu.Dim(), block_dim, lambda_set_data_blocks);
     }
   }
   return ans;
