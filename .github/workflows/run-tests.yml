@@ -105,6 +105,7 @@ jobs:
           cd build
           # we cannot use -j here because of limited RAM
           # of the VM provided by GitHub actions
-          make
+          # make
+          make cu_fsa_algo_test
           valgrind ./bin/cu_fsa_algo_test
           ctest --output-on-failure

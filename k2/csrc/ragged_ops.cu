@@ -300,10 +300,15 @@ RaggedShape Unsqueeze(const RaggedShape &src, int32_t axis) {
     row_ids_dim = tot_size;
     mem = Array1<int32_t>(c, row_splits_dim + row_ids_dim);
     int32_t *mem_data = mem.Data();
-    auto lambda_set_mem2 = [=] __host__ __device__(int32_t i) -> void {
-      mem_data[i] = i % (tot_size + 1);
-    };
-    Eval(c, mem.Dim(), lambda_set_mem2);
+    if (c->GetDeviceType() == kCpu) {
+      int32_t mem_dim = mem.Dim();
+      for (int32_t i = 0; i != mem_dim; ++i) mem_data[i] = i % (tot_size + 1);
+    } else {
+      auto lambda_set_mem2 = [=] __device__(int32_t i) -> void {
+        mem_data[i] = i % (tot_size + 1);
+      };
+      EvalDevice(c, mem.Dim(), lambda_set_mem2);
+    }
   }
   axes_out[axis].row_splits = mem.Range(0, row_splits_dim);
   axes_out[axis].row_ids = mem.Range(row_splits_dim, row_ids_dim);
@@ -410,6 +415,7 @@ inline void GetOldAndNewOffsets(RaggedShape &src,
 RaggedShape Index(RaggedShape &src, const Array1<int32_t> &new2old,
                   Array1<int32_t> *elem_indexes /*=nullptr*/) {
   NVTX_RANGE(K2_FUNC);
+  K2_LOG(INFO) << "index";
   ContextPtr c = src.Context();
   bool is_cpu = (c->GetDeviceType() == kCpu);
   K2_CHECK(IsCompatible(src, new2old));
@@ -419,19 +425,23 @@ RaggedShape Index(RaggedShape &src, const Array1<int32_t> &new2old,
     if (elem_indexes) *elem_indexes = Array1<int32_t>(c, 0);
     return EmptyRaggedShape(c, num_axes);
   }
+  K2_LOG(INFO) << "index";
 
   Array1<int32_t *> src_row_splits_ptrs = GetRowSplitsPtr(src);
   Array2<int32_t> old_offsets,  // num_axes by ans_dim0
       new_offsets;              // num_axes by (ans_dim0 + 1).
   GetOldAndNewOffsets(src, src_row_splits_ptrs, new2old, &old_offsets,
                       &new_offsets);
+  K2_LOG(INFO) << "index";
 
   Array1<int32_t> tot_sizes_out =
       Array1<int32_t>(new_offsets.Col(ans_dim0)).To(GetCpuContext());
 
   if (elem_indexes) *elem_indexes = Array1<int32_t>(c, tot_sizes_out.Back());
+  K2_LOG(INFO) << "index";
 
   RaggedShape ans = RaggedShapeFromTotSizes(c, num_axes, tot_sizes_out.Data());
+  K2_LOG(INFO) << "index";
 
   auto old_offsets_acc = old_offsets.Accessor(),
        new_offsets_acc = new_offsets.Accessor();
@@ -450,8 +460,10 @@ RaggedShape Index(RaggedShape &src, const Array1<int32_t> &new2old,
     GetTaskRedirect(c, ans_dim0, new_offsets_ptr, task_redirect_ptr);
   }
 
+  K2_LOG(INFO) << "index";
   for (int32_t axis = 0; axis < num_axes - 1; ++axis) {
     {
+      K2_LOG(INFO) << "index axis: " << axis;
       int32_t *this_new_row_splits = ans.RowSplits(axis + 1).Data();
       const int32_t *this_old_row_splits = src.RowSplits(axis + 1).Data();
 
@@ -818,10 +830,16 @@ RaggedShape MakeTransposable(RaggedShape &src) {
       axis1_shape.row_ids = Array1<int32_t>(c, ans_tot_size1);
       int32_t *row_ids1_data = axis1_shape.row_ids.Data();
       axis1_shape.cached_tot_size = ans_tot_size1;
-      auto lambda_set_row_ids1 = [=] __host__ __device__(int32_t i) {
-        row_ids1_data[i] = i / max_size;
-      };
-      Eval(c, ans_tot_size1, lambda_set_row_ids1);
+
+      if (c->GetDeviceType() == kCpu) {
+        for (int32_t i = 0; i != ans_tot_size1; ++i)
+          row_ids1_data[i] = i / max_size;
+      } else {
+        auto lambda_set_row_ids1 = [=] __device__(int32_t i) {
+          row_ids1_data[i] = i / max_size;
+        };
+        EvalDevice(c, ans_tot_size1, lambda_set_row_ids1);
+      }
     }
     if (num_axes > 2) {
       RaggedShapeDim &axis2_shape = axes_out[1];
@@ -856,13 +874,22 @@ RaggedShape MakeTransposable(RaggedShape &src) {
         axis2_shape.row_ids = Array1<int32_t>(c, tot_size2);
         int32_t *ans_row_ids2_data = axis2_shape.row_ids.Data();
         const int32_t *src_row_ids2_data = src.RowIds(2).Data();
-        auto lambda_set_row_ids2 = [=] __host__ __device__(int32_t idx012) {
-          int32_t src_idx01 = src_row_ids2_data[idx012];
-          int32_t src_idx0 = src_row_ids1_data[src_idx01];
-          int32_t src_idx1 = src_idx01 - src_row_splits1_data[src_idx0];
-          ans_row_ids2_data[idx012] = (src_idx0 * max_size) + src_idx1;
-        };
-        Eval(c, tot_size2, lambda_set_row_ids2);
+        if (c->GetDeviceType() == kCpu) {
+          for (int32_t idx012 = 0; idx012 != tot_size2; ++idx012) {
+            int32_t src_idx01 = src_row_ids2_data[idx012];
+            int32_t src_idx0 = src_row_ids1_data[src_idx01];
+            int32_t src_idx1 = src_idx01 - src_row_splits1_data[src_idx0];
+            ans_row_ids2_data[idx012] = (src_idx0 * max_size) + src_idx1;
+          }
+        } else {
+          auto lambda_set_row_ids2 = [=] __device__(int32_t idx012) {
+            int32_t src_idx01 = src_row_ids2_data[idx012];
+            int32_t src_idx0 = src_row_ids1_data[src_idx01];
+            int32_t src_idx1 = src_idx01 - src_row_splits1_data[src_idx0];
+            ans_row_ids2_data[idx012] = (src_idx0 * max_size) + src_idx1;
+          };
+          EvalDevice(c, tot_size2, lambda_set_row_ids2);
+        }
       }
     }
   }
@@ -904,7 +931,7 @@ RaggedShape Transpose(RaggedShape &src, Array1<int32_t> *value_indexes) {
       int32_t j = i % src_dim0, k = i / src_dim0, i_old = j * src_dim1 + k;
       renumbering_data[i] = i_old;
     };
-    Eval(c, src_tot_size1, lambda_set_renumbering);
+    EvalDevice(c, src_tot_size1, lambda_set_renumbering);
   }
 
   RaggedShape src_no_axis0_renumbered =
@@ -974,10 +1001,16 @@ RaggedShape RegularRaggedShape(ContextPtr &c, int32_t dim0, int32_t dim1) {
   int32_t *row_splits_data = row_splits.Data();
   Array1<int32_t> row_ids(c, dim0 * dim1);
   int32_t *row_ids_data = row_ids.Data();
-  auto lambda_set_row_ids = [=] __host__ __device__(int32_t i, int32_t j) {
-    row_ids_data[i * dim1 + j] = i;
-  };
-  Eval2(c, dim0, dim1, lambda_set_row_ids);
+  if (c->GetDeviceType() == kCpu) {
+    for (int i = 0; i != dim0; ++i) {
+      for (int j = 0; j != dim1; ++j) row_ids_data[i * dim1 + j] = i;
+    }
+  } else {
+    auto lambda_set_row_ids = [=] __device__(int32_t i, int32_t j) {
+      row_ids_data[i * dim1 + j] = i;
+    };
+    Eval2Device(c, dim0, dim1, lambda_set_row_ids);
+  }
   return RaggedShape2(&row_splits, &row_ids, dim0 * dim1);
 }
 
