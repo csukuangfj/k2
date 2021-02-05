@@ -7,3 +7,4 @@ Python tutorials
 
    fsa
    fsa_algo
+   arc_map
