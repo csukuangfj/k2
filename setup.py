@@ -40,6 +40,7 @@ import get_version
 get_package_version = get_version.get_package_version
 get_pytorch_version = get_version.get_pytorch_version
 is_for_pypi = get_version.is_for_pypi
+is_for_conda = get_version.is_for_conda
 
 if sys.version_info < (3,):
     print('Python 2 has reached end-of-life and is no longer supported by k2.')
@@ -85,17 +86,27 @@ class BuildExtension(build_ext):
         os.makedirs(self.build_lib, exist_ok=True)
 
         k2_dir = os.path.dirname(os.path.abspath(__file__))
-        if is_for_pypi():
+        if is_for_pypi() or is_for_conda():
             num_jobs = '3'
+            verbose = 1
         else:
             num_jobs = ''
+            verbose = 0
 
-        os.system(f'''
-            cd {self.build_temp};
-            cmake -DCMAKE_BUILD_TYPE=Release {k2_dir};
-            cat k2/csrc/version.h
-            make -j{num_jobs} _k2
-            ''')
+        ret = os.system(f'''
+                cd {self.build_temp}
+
+                cmake \
+                    -DCMAKE_BUILD_TYPE=Release \
+                    {k2_dir}
+
+                cat k2/csrc/version.h
+
+                make -j{num_jobs} VERBOSE={verbose} _k2
+              ''')
+        if ret != 0:
+            raise Exception('Failed to build k2')
+
         lib_so = glob.glob(f'{self.build_temp}/lib/*k2*.so')
         for so in lib_so:
             shutil.copy(f'{so}', f'{self.build_lib}/')

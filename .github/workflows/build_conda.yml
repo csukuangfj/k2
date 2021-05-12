@@ -143,5 +143,6 @@ jobs:
           K2_TORCH_VERSION: ${{ matrix.torch }}
           K2_CONDA_TOKEN: ${{ secrets.K2_CONDA_TOKEN}}
           K2_IS_GITHUB_ACTIONS: 1
+          K2_IS_FOR_CONDA: 1
         run: |
           ./scripts/build_conda.sh

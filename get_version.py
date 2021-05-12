@@ -29,6 +29,11 @@ def is_for_pypi():
     return ans is not None
 
 
+def is_for_conda():
+    ans = os.environ.get('K2_IS_FOR_CONDA', None)
+    return ans is not None
+
+
 def get_package_version():
     # Set a default CUDA version here so that `pip install k2`
     # uses the default CUDA version.

@@ -146,8 +146,7 @@ jobs:
       - name: Build pip packages
         shell: bash
         run: |
-          sudo apt-get install chrpath
-          ./scripts/build_pip.sh
+          python3 setup.py bdist_wheel
           ls dist/
 
       - name: Upload Wheel
