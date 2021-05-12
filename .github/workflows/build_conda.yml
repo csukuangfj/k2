@@ -9,7 +9,11 @@ name: build_conda
 on:
   push:
     branches:
+      - master
       - conda
+  pull_request:
+    branches:
+      - master
 
 env:
   K2_BUILD_TYPE: Release
@@ -114,6 +118,7 @@ jobs:
           conda install -y -q anaconda
           conda install -y -q conda-build
           conda install -y -q bs4 requests tqdm
+          conda install -y -c pytorch -c conda-forge pytorch=${{ matrix.torch }} cudatoolkit=${{ matrix.cuda }}
 
       - name: Display conda info
         shell: bash -l {0}
