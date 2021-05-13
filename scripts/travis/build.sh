@@ -7,9 +7,17 @@ echo "=============================="
 echo " Display python version       "
 echo "------------------------------"
 
+which pyenv
+pyenv install 3.8.0
+
 python3 --version
 which python3
 
+
+echo "=============================="
+echo " Display gcc version       "
+echo "------------------------------"
+gcc --version
 
 # $k2_dir/
 
