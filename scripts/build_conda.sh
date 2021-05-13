@@ -78,7 +78,7 @@ export K2_BUILD_TYPE
 if [ ! -z $K2_IS_GITHUB_ACTIONS ]; then
   export K2_IS_GITHUB_ACTIONS
   conda remove pytorch cudatoolkit
-  conda clean -all
+  conda clean -a
 else
   export K2_IS_GITHUB_ACTIONS=0
 fi
