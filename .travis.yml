@@ -5,13 +5,15 @@ dist: xenial
 notifications:
   email: false
 
-env:
-  - K2_PYTHON_VERSION: 3.7
-  - K2_PYTHON_VERSION: 3.8
+matrix:
+  include:
+    - env:
+      - K2_PYTHON_VERSION: 3.8
+      - K2_CUDA_VERSION: 10.1
+    - env:
+      - K2_PYTHON_VERSION: 3.8
+      - K2_CUDA_VERSION: 10.2
 
-env:
-  - K2_CUDA_VERSION: 10.1
-  - K2_CUDA_VERSION: 10.2
 
 python:
   - "3.8"
