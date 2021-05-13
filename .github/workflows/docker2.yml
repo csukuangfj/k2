@@ -58,7 +58,7 @@ jobs:
           echo "after using swap"
           free -m
           find / -name sudo
-          ls -lh /mnt/swapfile
+          ls -lh /mnt/
           cat /proc/swaps
 
 
