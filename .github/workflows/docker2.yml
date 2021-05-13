@@ -66,6 +66,22 @@ jobs:
 
           yum install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
 
+      - name: before
+        run: |
+          free -m
+          free -g
+
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 512
+          swap-size-mb: 9012
+          remove-dotnet: 'true'
+
+      - name: after
+        run: |
+          free -m
+          free -g
 
       - uses: actions/checkout@v2
         with:
