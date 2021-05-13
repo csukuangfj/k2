@@ -5,6 +5,11 @@ dist: xenial
 notifications:
   email: false
 
+language: cpp
+
+compiler:
+  - gcc
+
 python:
   - "3.8"
 
