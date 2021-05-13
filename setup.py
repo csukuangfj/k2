@@ -93,11 +93,14 @@ class BuildExtension(build_ext):
             num_jobs = ''
             verbose = 0
 
+        cmake_args = os.environ.get('K2_CMAKE_ARGS', '')
+
         build_cmd = f'''
             cd {self.build_temp}
 
             cmake \
                 -DCMAKE_BUILD_TYPE=Release \
+                {cmake_args} \
                 {k2_dir}
 
             cat k2/csrc/version.h

@@ -110,5 +110,6 @@ jobs:
         env:
           K2_IS_FOR_PYPI: 1
         run: |
-          tag=$(python3 -c "import sys; print(''.join(sys.version[:3].split('.')))")
+          K2_CMAKE_ARGS="-DPYTHON_EXECUTABLE=/usr/bin/python3"
+          export K2_CMAKE_ARGS
           python3 setup.py bdist_wheel
