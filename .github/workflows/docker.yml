@@ -55,54 +55,53 @@ jobs:
           python3 --version
           python --version
 
-
           # yum install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
 
 
-      # - uses: actions/checkout@v2
-      #   with:
-      #     fetch-depth: 0
-      #
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
       # - name: Install pyenv ${{ matrix.python-version }}
       #   uses: gabrielfalcao/pyenv-action@v5
       #   with:
       #     default: "${{ matrix.python-version }}"
       #
-      # - name: Display Python version
-      #   run: |
-      #     which pip
-      #     which python3
-      #     python3 -c "import sys; print(sys.version)"
-      #     pip --version
-      #
-      # - name: Display NVCC version
-      #   run: |
-      #     which nvcc
-      #     nvcc --version
-      #
-      # - name: Display GCC version
-      #   run: |
-      #     which gcc
-      #     gcc --version
-      #
-      # - name: Install PyTorch ${{ matrix.torch }}
-      #   env:
-      #     cuda: ${{ matrix.cuda }}
-      #     torch: ${{ matrix.torch }}
-      #   shell: bash
-      #   run: |
-      #     python3 -m pip install --upgrade pip
-      #     python3 -m pip install wheel twine
-      #     python3 -m pip install bs4 requests tqdm
-      #
-      #     ./scripts/github_actions/install_torch.sh
-      #     python3 -c "import torch; print('torch version:', torch.__version__)"
-      #     python3 -m torch.utils.collect_env
-      #
-      # - name: Build pip packages
-      #   shell: bash
-      #   env:
-      #     K2_IS_FOR_PYPI: 1
-      #   run: |
-      #     tag=$(python3 -c "import sys; print(''.join(sys.version[:3].split('.')))")
-      #     python3 setup.py bdist_wheel
+      - name: Display Python version
+        run: |
+          which pip
+          which python3
+          python3 -c "import sys; print(sys.version)"
+          pip --version
+
+      - name: Display NVCC version
+        run: |
+          which nvcc
+          nvcc --version
+
+      - name: Display GCC version
+        run: |
+          which gcc
+          gcc --version
+
+      - name: Install PyTorch ${{ matrix.torch }}
+        env:
+          cuda: ${{ matrix.cuda }}
+          torch: ${{ matrix.torch }}
+        shell: bash
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install wheel twine
+          python3 -m pip install bs4 requests tqdm
+
+          ./scripts/github_actions/install_torch.sh
+          python3 -c "import torch; print('torch version:', torch.__version__)"
+          python3 -m torch.utils.collect_env
+
+      - name: Build pip packages
+        shell: bash
+        env:
+          K2_IS_FOR_PYPI: 1
+        run: |
+          tag=$(python3 -c "import sys; print(''.join(sys.version[:3].split('.')))")
+          python3 setup.py bdist_wheel
