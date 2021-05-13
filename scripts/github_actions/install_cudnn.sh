@@ -34,6 +34,7 @@ function retry() {
 }
 
 retry wget https://raw.githubusercontent.com/Juvenal-Yescas/mediafire-dl/master/mediafire-dl.py
+sed -i 's/quiet=False/quiet=True/' mediafire-dl.py
 retry python3 mediafire-dl.py "$url"
 ls -l
 sudo tar xf ./$filename -C /usr/local

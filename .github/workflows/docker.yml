@@ -1,0 +1,61 @@
+# Copyright (c)  2021  Fangjun Kuang (csukuangfj@gmail.com)
+
+# See ../../LICENSE for clarification regarding multiple authors
+
+# refer to https://github.com/actions/starter-workflows/pull/47/files
+
+name: manylinux
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  manylinux:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-16.04]
+        # cuda: ["10.1", "10.2", "11.0", "11.1"]
+        cuda: ["10.2"]
+        # torch: ["1.5.0", "1.5.1", "1.6.0", "1.7.0", "1.7.1", "1.8.0"]
+        torch: ["1.7.1"]
+        # keep cuda value in sync with cuda
+        cuda_value: ["102"]
+    # see https://hub.docker.com/u/pytorch
+    # for available tags
+    #
+    container:  pytorch/manylinux-cuda${{ matrix.cuda_value }}:latest
+    steps:
+      - name: "Test docker"
+        run: |
+          echo "."
+          cat /etc/*release*
+          ls -l /usr/local
+          ls -l
+          pwd
+          id
+          python3 --version
+
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
+
+      - name: Display NVCC version
+        run: |
+          which nvcc
+          nvcc --version
+
+      - name: Display GCC version
+        run: |
+          which gcc
+          gcc --version
+
+      - name: Install PyTorch ${{ matrix.torch }}
+        shell: bash
+        run: |
+          python3 -m pip install torch==${{ matrix.torch }}
+          python3 -m torch.utils.collect_env
