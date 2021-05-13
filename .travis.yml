@@ -5,6 +5,8 @@ dist: xenial
 notifications:
   email: false
 
+language: cpp
+
 matrix:
   include:
     - env:
