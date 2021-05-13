@@ -47,16 +47,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: conda-incubator/setup-miniconda@v2
+      - name: Install Python ${{ matrix.python-version }}
+        uses: gabrielfalcao/pyenv-action@v5
         with:
-          auto-update-conda: true
-          python-version: ${{ matrix.python-version }}
-          activate-environment: k2
+          default: "${{ matrix.python-version }}"
+          command: pip install -U pip  # upgrade pip after installing python
 
       - name: Display Python version
         run: |
           python3 -c "import sys; print(sys.version)"
-          conda install -c anaconda pip
           pip --version
 
       - name: Display NVCC version
