@@ -24,7 +24,7 @@ jobs:
       matrix:
         os: [ubuntu-16.04]
         # python-version: [3.6, 3.7, 3.8, 3.9]
-        python-version: [3.8]
+        python-version: ["3.8.0"]
         # cuda: ["10.1", "10.2", "11.0", "11.1"]
         cuda: ["10.2"]
         # torch: ["1.5.0", "1.5.1", "1.6.0", "1.7.0", "1.7.1", "1.8.0"]
@@ -50,17 +50,22 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install pyenv
+      - name: Install pyenv ${{ matrix.python-version }}
         uses: gabrielfalcao/pyenv-action@v5
         with:
           default: "${{ matrix.python-version }}"
+          command: |
+            python3 --version
+            which pyenv
+            pyenv local
+            pyenv global
+            which pip
+            pip install -U pip  # upgrade pip after installing python
 
       - name: Display Python version
         run: |
           python3 -c "import sys; print(sys.version)"
-          which pyenv
-          pyenv local
-          pyenv global
+          pip --version
 
       - name: Display NVCC version
         run: |
