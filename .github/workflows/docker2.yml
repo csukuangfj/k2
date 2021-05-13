@@ -67,7 +67,7 @@ jobs:
       - name: Increase swap size
         run: |
           # 4K * 1M =  4G
-          dd if=/dev/zero of=/swap count=4096 bs=1MiB
+          dd if=/dev/zero of=/mnt/swapfile2 count=4096 bs=1MiB
           chmod 600 /mnt/swapfile2
           mkswap /mnt/swapfile2
           ls -lh /mnt/swapfile2
