@@ -7,9 +7,6 @@ echo "=============================="
 echo " Display python version       "
 echo "------------------------------"
 
-K2_PYTHON_VERSION_LONG=3.8.0
-export K2_PYTHON_VERSION=$(basename -s .0 $K2_PYTHON_VERSION_LONG)
-
 export cuda=10.1
 export torch=1.7.1
 
@@ -19,14 +16,16 @@ git branch
 git checkout master
 popd
 
-pyenv install $K2_PYTHON_VERSION_LONG
+pyenv install ${K2_PYTHON_VERSION}.0
+pyenv global ${K2_PYTHON_VERSION}.0
+python3 --version
+which python3
 
 echo "=============================="
 echo " Display gcc version       "
 echo "------------------------------"
 gcc --version
 
-# $k2_dir/
 
 echo "=============================="
 echo " Install CUDA toolkit $cuda   "

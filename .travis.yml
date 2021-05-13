@@ -5,12 +5,13 @@ dist: xenial
 notifications:
   email: false
 
-language: cpp
-
-compiler:
-  - gcc
+env:
+  - K2_PYTHON_VERSION: 3.7
+  - K2_PYTHON_VERSION: 3.8
 
 python:
   - "3.8"
+
+
 
 script: bash scripts/travis/build.sh
