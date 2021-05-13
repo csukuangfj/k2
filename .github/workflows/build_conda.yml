@@ -118,7 +118,7 @@ jobs:
       - name: Install conda dependencies
         shell: bash -l {0}
         run: |
-          conda install -y -q anaconda
+          # conda install -y -q anaconda
           conda install -y -q conda-build
           conda install -y -q bs4 requests tqdm
           conda install -y -c pytorch -c conda-forge pytorch=${{ matrix.torch }} cudatoolkit=${{ matrix.cuda }}
@@ -144,7 +144,7 @@ jobs:
           K2_CUDA_VERSION: ${{ matrix.cuda }}
           K2_PYTHON_VERSION: ${{ matrix.python-version}}
           K2_TORCH_VERSION: ${{ matrix.torch }}
-          K2_CONDA_TOKEN: ${{ secrets.K2_CONDA_TOKEN}}
+          # K2_CONDA_TOKEN: ${{ secrets.K2_CONDA_TOKEN}}
           K2_IS_GITHUB_ACTIONS: 1
           K2_IS_FOR_CONDA: 1
         run: |
