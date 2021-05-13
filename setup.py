@@ -87,23 +87,26 @@ class BuildExtension(build_ext):
 
         k2_dir = os.path.dirname(os.path.abspath(__file__))
         if is_for_pypi() or is_for_conda():
-            num_jobs = '3'
+            num_jobs = '2'
             verbose = 1
         else:
             num_jobs = ''
             verbose = 0
 
-        ret = os.system(f'''
-                cd {self.build_temp}
+        build_cmd = f'''
+            cd {self.build_temp}
 
-                cmake \
-                    -DCMAKE_BUILD_TYPE=Release \
-                    {k2_dir}
+            cmake \
+                -DCMAKE_BUILD_TYPE=Release \
+                {k2_dir}
 
-                cat k2/csrc/version.h
+            cat k2/csrc/version.h
 
-                make -j{num_jobs} VERBOSE={verbose} _k2
-              ''')
+            make -j{num_jobs} VERBOSE={verbose} _k2
+        '''
+        print(f'build command is:\n{build_cmd}')
+
+        ret = os.system(build_cmd)
         if ret != 0:
             raise Exception('Failed to build k2')
 
