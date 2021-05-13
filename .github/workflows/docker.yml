@@ -20,6 +20,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-16.04]
+        # python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: [3.8]
         # cuda: ["10.1", "10.2", "11.0", "11.1"]
         cuda: ["10.2"]
         # torch: ["1.5.0", "1.5.1", "1.6.0", "1.7.0", "1.7.1", "1.8.0"]
@@ -41,8 +43,20 @@ jobs:
           id
           python3 --version
 
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - uses: szenius/set-timezone@v1.0
+        with:
+          timezoneLinux: "Asia/Shanghai"
+
+      - name: Display date and time
+        run: date
+
       - name: Display Python version
-        run: python -c "import sys; print(sys.version)"
+        run: |
+          python3 -c "import sys; print(sys.version)"
 
       - name: Display NVCC version
         run: |
@@ -55,7 +69,14 @@ jobs:
           gcc --version
 
       - name: Install PyTorch ${{ matrix.torch }}
+        env:
+          cuda: ${{ matrix.cuda }}
+          torch: ${{ matrix.torch }}
         shell: bash
         run: |
-          python3 -m pip install torch==${{ matrix.torch }}
-          python3 -m torch.utils.collect_env
+          python3 -m pip install --upgrade pip
+          python3 -m pip install wheel twine
+          python3 -m pip install bs4 requests tqdm
+
+          ./scripts/github_actions/install_torch.sh
+          python3 -c "import torch; print('torch version:', torch.__version__)"
