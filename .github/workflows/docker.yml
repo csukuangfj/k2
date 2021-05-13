@@ -25,7 +25,7 @@ jobs:
       matrix:
         os: [ubuntu-16.04]
         # python-version: [3.6, 3.7, 3.8, 3.9]
-        python-version: ["3.8.0"]
+        python-version: ["3.8"]
         # cuda: ["10.1", "10.2", "11.0", "11.1"]
         cuda: ["10.2"]
         # torch: ["1.5.0", "1.5.1", "1.6.0", "1.7.0", "1.7.1", "1.8.0"]
@@ -48,7 +48,7 @@ jobs:
           python3 --version
           py=$(find /opt/_internal/cpython*/bin -name python${{ matrix.python-version }})
           echo "py is: $py"
-          update-alternatives --list python
+          # update-alternatives --list python
 
 
           # yum install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
