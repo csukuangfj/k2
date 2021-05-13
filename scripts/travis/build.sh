@@ -7,7 +7,7 @@ echo "=============================="
 echo " Display python version       "
 echo "------------------------------"
 
-export cuda=10.1
+export cuda=$K2_CUDA_VERSION
 export torch=1.7.1
 
 which pyenv
