@@ -46,11 +46,14 @@ jobs:
           # pwd
           # id
           python3 --version
+          python --version
+          find /opt/_internal -name "pip*"
           py=$(find /opt/_internal/cpython*/bin -name python${{ matrix.python-version }})
           echo "py is: $py"
           update-alternatives --install /usr/bin/python3 python3 $py 9000
           update-alternatives --install /usr/bin/python python $py 9000
           python3 --version
+          python --version
 
 
           # yum install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
