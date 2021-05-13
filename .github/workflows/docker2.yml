@@ -53,8 +53,8 @@ jobs:
 
           free -m
 
-          # 4K * 1M =  8G
-          dd if=/dev/zero of=/swap count=4096 bs=8MiB
+          # 4K * 1M =  4G
+          dd if=/dev/zero of=/swap count=4096 bs=1MiB
           chmod 600 /swap
           mkswap /swap
           swapon /swap
