@@ -42,13 +42,13 @@ echo "=============================="
 echo " Install torch $torch         "
 echo "------------------------------"
 
-python3 -m pip install -U pip
-python3 -m pip install bs4 requests tqdm
+python3 -m pip install -q -U pip
+python3 -m pip install -q wheel twine
+python3 -m pip install -q bs4 requests tqdm
 
 $k2_dir/scripts/github_actions/install_torch.sh
 python3 -c "import torch; print('torch version:', torch.__version__)"
 python3 -m torch.utils.collect_env
-
 
 echo "=============================="
 echo " Download cuDNN 8.0           "
