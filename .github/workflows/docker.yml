@@ -46,7 +46,8 @@ jobs:
           id
           python3 --version
           yum install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
-          find / -name "python*"
+          find / -name "python*" | xargs ls -lh
+          find / -name "python*" | xargs file
 
 
       - uses: actions/checkout@v2
