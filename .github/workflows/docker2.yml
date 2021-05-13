@@ -97,3 +97,9 @@ jobs:
         run: |
           tag=$(python3 -c "import sys; print(''.join(sys.version[:3].split('.')))")
           python3 setup.py bdist_wheel
+
+      - name: Upload Wheel
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-none-whl
+          path: dist/*.whl
