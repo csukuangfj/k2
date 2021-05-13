@@ -27,5 +27,7 @@ jobs:
       - name: "Test docker"
         run: |
           echo "."
+          cat /etc/*release*
+          ls -l /usr/local
+          ls -l
           pwd
-          lsb_release -a
