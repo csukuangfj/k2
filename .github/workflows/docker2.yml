@@ -52,12 +52,13 @@ jobs:
           # The RAM providef by GitHub actions is only 7 G
 
           free -m
+          df -h
 
           # 4K * 1M =  4G
-          dd if=/dev/zero of=/swap count=4096 bs=1MiB
-          chmod 600 /swap
-          mkswap /swap
-          swapon /swap
+          # dd if=/dev/zero of=/swap count=4096 bs=1MiB
+          # chmod 600 /swap
+          # mkswap /swap
+          # swapon /swap
 
           echo "after using swap"
           free -m
