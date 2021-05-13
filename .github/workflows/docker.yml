@@ -45,7 +45,7 @@ jobs:
           pwd
           id
           python3 --version
-          # yum install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
+          yum install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
           find / -name "python*"
 
 
@@ -57,26 +57,13 @@ jobs:
         uses: gabrielfalcao/pyenv-action@v5
         with:
           default: "${{ matrix.python-version }}"
-          # command: |
-          #   python3 --version
-          #   which pyenv
-          #   pyenv local
-          #   pyenv global
-          #   which pip
-          #   pip install -U pip  # upgrade pip after installing python
 
       - name: Display Python version
         run: |
           which pip
           which python3
           python3 -c "import sys; print(sys.version)"
-          pyenv install ${{ matrix.python-version }}
-          pyenv global ${{ matrix.python-version }}
-          python3 -c "import sys; print(sys.version)"
-          which python3
-          which pip
-          
-          # pip --version
+          pip --version
 
       - name: Display NVCC version
         run: |
