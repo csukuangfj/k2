@@ -47,22 +47,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: szenius/set-timezone@v1.0
+      - uses: conda-incubator/setup-miniconda@v2
         with:
-          timezoneLinux: "Asia/Shanghai"
-
-      - name: Display date and time
-        run: date
-
-      - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
+          auto-update-conda: true
           python-version: ${{ matrix.python-version }}
+          activate-environment: k2
 
       - name: Display Python version
         run: |
           python3 -c "import sys; print(sys.version)"
-          curl https://bootstrap.pypa.io/get-pip.py | python
+          conda install -c anaconda pip
           pip --version
 
       - name: Display NVCC version
