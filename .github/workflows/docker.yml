@@ -50,21 +50,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Python ${{ matrix.python-version }}
+      - name: Install pyenv
         uses: gabrielfalcao/pyenv-action@v5
         with:
           default: "${{ matrix.python-version }}"
-          command: |
-            python3 --version
-            which pyenv
-            pyenv local
-            pyenv global
-            # pip install -U pip  # upgrade pip after installing python
 
       - name: Display Python version
         run: |
           python3 -c "import sys; print(sys.version)"
-          pip --version
+          which pyenv
+          pyenv local
+          pyenv global
 
       - name: Display NVCC version
         run: |

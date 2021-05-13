@@ -87,7 +87,7 @@ class BuildExtension(build_ext):
 
         k2_dir = os.path.dirname(os.path.abspath(__file__))
         if is_for_pypi() or is_for_conda():
-            num_jobs = '2'
+            num_jobs = '1'
             verbose = 1
         else:
             num_jobs = ''
