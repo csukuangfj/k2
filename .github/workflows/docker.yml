@@ -62,6 +62,8 @@ jobs:
       - name: Display Python version
         run: |
           python3 -c "import sys; print(sys.version)"
+          curl https://bootstrap.pypa.io/get-pip.py | python
+          pip --version
 
       - name: Display NVCC version
         run: |
