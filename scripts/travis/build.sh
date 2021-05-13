@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 cur_dir=$(cd $(dirname $BASH_SOURCE) && pwd)
-k2_dir=$(cd $cur_dir/.. && pwd)
+k2_dir=$(cd $cur_dir/../.. && pwd)
 
 echo "=============================="
 echo " Display python version       "
@@ -42,6 +42,7 @@ echo "=============================="
 echo " Install torch $torch         "
 echo "------------------------------"
 
+python3 -m pip install -U pip
 python3 -m pip install bs4 requests tqdm
 
 $k2_dir/scripts/github_actions/install_torch.sh
