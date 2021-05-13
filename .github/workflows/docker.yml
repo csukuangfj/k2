@@ -16,6 +16,7 @@ on:
 
 env:
   ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+  PYTHON_CONFIGURE_OPTS: "--enable-shared"
 
 jobs:
   manylinux:
@@ -44,11 +45,8 @@ jobs:
           ls -l
           pwd
           id
-          update-alternatives --config python
           python3 --version
           yum install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
-          find / -name "python*" | xargs ls -lh
-          find / -name "python*" | xargs file
 
 
       - uses: actions/checkout@v2
