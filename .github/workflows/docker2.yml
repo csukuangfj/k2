@@ -49,24 +49,33 @@ jobs:
           python3 --version
 
           # See https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
-          # The RAM providef by GitHub actions is only 7 G
+          # The RAM provided by GitHub actions is only 7 G
 
           free -m
           df -h
 
-          # 4K * 1M =  4G
-          # dd if=/dev/zero of=/swap count=4096 bs=1MiB
-          # chmod 600 /swap
-          # mkswap /swap
-          # swapon /swap
 
           echo "after using swap"
           free -m
           find / -name sudo
+          ls -lh /mnt/swapfile
           cat /proc/swaps
 
 
           yum install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
+
+      - name: Increase swap size
+        run: |
+          which pip
+          # 4K * 1M =  4G
+          dd if=/dev/zero of=/swap count=4096 bs=1MiB
+          chmod 600 /mnt/swapfile2
+          mkswap /mnt/swapfile2
+          ls -lh /mnt/swapfile2
+
+      - name: Increase swap size2
+        run: |
+          swapon /mnt/swapfile2
 
 
       - uses: actions/checkout@v2
