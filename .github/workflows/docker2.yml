@@ -1,0 +1,99 @@
+# Copyright (c)  2021  Fangjun Kuang (csukuangfj@gmail.com)
+
+# See ../../LICENSE for clarification regarding multiple authors
+
+# refer to https://github.com/actions/starter-workflows/pull/47/files
+
+name: manylinux2
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+env:
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+  PYTHON_CONFIGURE_OPTS: "--enable-shared"
+
+jobs:
+  manylinux2:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-16.04]
+        # python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: ["3.8.0"]
+        # cuda: ["10.1", "10.2", "11.0", "11.1"]
+        cuda: ["10.2"]
+        # torch: ["1.5.0", "1.5.1", "1.6.0", "1.7.0", "1.7.1", "1.8.0"]
+        torch: ["1.7.1"]
+        # keep cuda value in sync with cuda
+        cuda_value: ["102"]
+    # see https://hub.docker.com/u/pytorch
+    # for available tags
+    #
+    container:  pytorch/manylinux-cuda${{ matrix.cuda_value }}:latest
+    steps:
+      - name: "Test docker"
+        run: |
+          echo "."
+          cat /etc/*release*
+          ls -l /
+          ls -l /usr/local
+          ls -l
+          pwd
+          id
+          python3 --version
+          yum install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
+
+
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Install pyenv ${{ matrix.python-version }}
+        uses: gabrielfalcao/pyenv-action@v5
+        with:
+          default: "${{ matrix.python-version }}"
+
+      - name: Display Python version
+        run: |
+          which pip
+          which python3
+          python3 -c "import sys; print(sys.version)"
+          pip --version
+
+      - name: Display NVCC version
+        run: |
+          which nvcc
+          nvcc --version
+
+      - name: Display GCC version
+        run: |
+          which gcc
+          gcc --version
+
+      - name: Install PyTorch ${{ matrix.torch }}
+        env:
+          cuda: ${{ matrix.cuda }}
+          torch: ${{ matrix.torch }}
+        shell: bash
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install wheel twine
+          python3 -m pip install bs4 requests tqdm
+
+          ./scripts/github_actions/install_torch.sh
+          python3 -c "import torch; print('torch version:', torch.__version__)"
+          python3 -m torch.utils.collect_env
+
+      - name: Build pip packages
+        shell: bash
+        env:
+          K2_IS_FOR_PYPI: 1
+        run: |
+          tag=$(python3 -c "import sys; print(''.join(sys.version[:3].split('.')))")
+          python3 setup.py bdist_wheel
