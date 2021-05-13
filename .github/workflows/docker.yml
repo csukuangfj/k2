@@ -54,7 +54,12 @@ jobs:
         uses: gabrielfalcao/pyenv-action@v5
         with:
           default: "${{ matrix.python-version }}"
-          command: pip install -U pip  # upgrade pip after installing python
+          command: |
+            python3 --version
+            which pyenv
+            pyenv local
+            pyenv global
+            # pip install -U pip  # upgrade pip after installing python
 
       - name: Display Python version
         run: |
