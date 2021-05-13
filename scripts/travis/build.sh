@@ -8,7 +8,7 @@ echo " Display python version       "
 echo "------------------------------"
 
 export cuda=$K2_CUDA_VERSION
-export torch=1.7.1
+export torch=$K2_TORCH_VERSION
 
 which pyenv
 pushd /opt/pyenv

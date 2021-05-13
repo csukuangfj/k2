@@ -10,14 +10,14 @@ matrix:
     - env:
       - K2_PYTHON_VERSION: 3.8
       - K2_CUDA_VERSION: 10.1
+      - K2_TORCH_VERSION: 1.7.0
     - env:
       - K2_PYTHON_VERSION: 3.8
-      - K2_CUDA_VERSION: 10.2
-
-
-python:
-  - "3.8"
-
-
+      - K2_CUDA_VERSION: 10.1
+      - K2_TORCH_VERSION: 1.7.1
+    - env:
+      - K2_PYTHON_VERSION: 3.8
+      - K2_CUDA_VERSION: 10.1
+      - K2_TORCH_VERSION: 1.8.0
 
 script: bash scripts/travis/build.sh

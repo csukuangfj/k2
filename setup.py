@@ -88,13 +88,12 @@ class BuildExtension(build_ext):
         k2_dir = os.path.dirname(os.path.abspath(__file__))
         if is_for_pypi() or is_for_conda():
             num_jobs = '1'
-            verbose = 1
         else:
             num_jobs = ''
-            verbose = 0
 
         cmake_args = os.environ.get('K2_CMAKE_ARGS', '')
 
+        verbose = 0
         build_cmd = f'''
             cd {self.build_temp}
 
