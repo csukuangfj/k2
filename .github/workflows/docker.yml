@@ -54,6 +54,11 @@ jobs:
       - name: Display date and time
         run: date
 
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
       - name: Display Python version
         run: |
           python3 -c "import sys; print(sys.version)"
@@ -80,3 +85,12 @@ jobs:
 
           ./scripts/github_actions/install_torch.sh
           python3 -c "import torch; print('torch version:', torch.__version__)"
+          python3 -m torch.utils.collect_env
+
+      - name: Build pip packages
+        shell: bash
+        env:
+          K2_IS_FOR_PYPI: 1
+        run: |
+          tag=$(python3 -c "import sys; print(''.join(sys.version[:3].split('.')))")
+          python3 setup.py bdist_wheel
