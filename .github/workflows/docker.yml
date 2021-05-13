@@ -61,6 +61,7 @@ jobs:
           python3 --version
           python --version
           pip --version
+          find /opt/_internal/cpython* -name "libpython*"
 
           # yum install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
 
@@ -110,6 +111,7 @@ jobs:
         env:
           K2_IS_FOR_PYPI: 1
         run: |
+
           K2_CMAKE_ARGS="-DPYTHON_EXECUTABLE=/usr/bin/python3"
           export K2_CMAKE_ARGS
           python3 setup.py bdist_wheel
