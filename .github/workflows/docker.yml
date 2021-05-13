@@ -52,16 +52,21 @@ jobs:
           pip=$(find /opt/_internal/cpython*/bin -name pip${{ matrix.python-version }})
           echo "py is: $py"
           echo "pip is: $pip"
+
+          rm -fv /usr/bin/python3
+          rm -fv /usr/bin/python
           update-alternatives --install /usr/bin/python3 python3 $py 9000
           update-alternatives --install /usr/bin/python python $py 9000
 
+          rm -fv /usr/bin/pip3
+          rm -fv /usr/bin/pip
           update-alternatives --install /usr/bin/pip3 pip3 $pip 9000
           update-alternatives --install /usr/bin/pip pip $pip 9000
 
           python3 --version
           python --version
           pip --version
-          find /opt/_internal/cpython* -name "libpython*"
+          find / -name "libpython*"
 
           # yum install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
 
