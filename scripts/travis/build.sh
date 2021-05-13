@@ -7,10 +7,20 @@ echo "=============================="
 echo " Display python version       "
 echo "------------------------------"
 
+K2_PYTHON_VERSION_LONG=3.8.0
+export K2_PYTHON_VERSION=$(basename -s .0 $K2_PYTHON_VERSION_LONG)
+
 which pyenv
 
 pyenv install --list
-cd /opt/pyenv/plugins/python-build/../.. && git pull && cd -
+pushd /opt/pyenv/plugins/python-build/../.. 
+git branch
+
+git remote -v
+git pull
+git merge --ff orgin/master
+git log -3 --format=oneline
+popd
 pyenv install --list
 
 pyenv install 3.8.0
