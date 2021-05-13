@@ -47,6 +47,22 @@ jobs:
           pwd
           id
           python3 --version
+
+          # See https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+          # The RAM providef by GitHub actions is only 7 G
+
+          free -m
+
+          # 4K * 1M =  8G
+          dd if=/dev/zero of=/swap count=4096 bs=8MiB
+          chmod 600 /swap
+          mkswap /swap
+          swapon /swap
+
+          echo "after using swap"
+          free -m
+
+
           yum install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
 
 
