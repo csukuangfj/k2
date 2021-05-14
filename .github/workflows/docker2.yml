@@ -92,7 +92,7 @@ jobs:
 
       - name: Build pip packages
         shell: bash
-        # env:
+        env:
           K2_IS_FOR_PYPI: 1
         run: |
           tag=$(python3 -c "import sys; print(''.join(sys.version[:3].split('.')))")
