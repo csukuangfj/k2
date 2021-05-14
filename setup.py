@@ -60,7 +60,8 @@ try:
             if is_for_pypi():
                 # In this case, the generated wheel has a name in the form
                 # k2-xxx-pyxx-none-any.whl
-                self.root_is_pure = True
+                #  self.root_is_pure = True
+                self.root_is_pure = False  # remove it
             else:
                 # The generated wheel has a name ending with
                 # -linux_x86_64.whl

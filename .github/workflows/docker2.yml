@@ -37,34 +37,26 @@ jobs:
     #
     container:  pytorch/manylinux-cuda${{ matrix.cuda_value }}:latest
     steps:
-      - name: "Test docker"
+      - name: "Install dependencies for installing Python"
         run: |
-          echo "."
-          cat /etc/*release*
-          ls -l /
-          ls -l /usr/local
-          ls -l
-          pwd
-          id
-          python3 --version
-
-          yum install -y gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
+          # The following dependencies are needed when installing python
+          # using pyenv
+          yum install -y -q gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
 
       - uses: actions/checkout@v2
+        name: "Downloading k2"
         with:
           fetch-depth: 0
 
-      - name: Install pyenv ${{ matrix.python-version }}
+      - name: Install Python ${{ matrix.python-version }}
         uses: gabrielfalcao/pyenv-action@v5
         with:
           default: "${{ matrix.python-version }}"
 
       - name: Display Python version
         run: |
-          which pip
           which python3
           python3 -c "import sys; print(sys.version)"
-          pip --version
 
       - name: Display NVCC version
         run: |
@@ -82,9 +74,9 @@ jobs:
           torch: ${{ matrix.torch }}
         shell: bash
         run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install wheel twine
-          python3 -m pip install bs4 requests tqdm
+          python3 -m pip install -q --upgrade pip
+          python3 -m pip install -q wheel twine
+          python3 -m pip install -q bs4 requests tqdm
 
           ./scripts/github_actions/install_torch.sh
           python3 -c "import torch; print('torch version:', torch.__version__)"
@@ -92,8 +84,8 @@ jobs:
 
       - name: Build pip packages
         shell: bash
-        env:
-          K2_IS_FOR_PYPI: 1
+        # env:
+          # K2_IS_FOR_PYPI: 1
         run: |
           tag=$(python3 -c "import sys; print(''.join(sys.version[:3].split('.')))")
           export K2_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=$BUILD_TYPE"
