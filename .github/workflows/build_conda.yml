@@ -9,11 +9,7 @@ name: build_conda
 on:
   push:
     branches:
-      - master
       - conda
-  pull_request:
-    branches:
-      - master
 
 env:
   K2_BUILD_TYPE: Release
