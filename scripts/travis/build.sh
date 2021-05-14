@@ -38,4 +38,4 @@ $k2_dir/scripts/github_actions/install_cudnn.sh
 mkdir $k2_dir/build
 pushd $k2_dir/build
 cmake -DCMAKE_BUILD_TYPE=Release ..
-make VERBOSE=0 -j _k2
+make -j2 _k2
