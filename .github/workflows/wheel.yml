@@ -90,9 +90,9 @@ jobs:
           python3 setup.py bdist_wheel --python-tag=py${tag}
           ls -lh dist/
 
-      - name: Publish wheels to PyPI
-        env:
-          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-        run: |
-          twine upload dist/k2-*.whl
+      # - name: Publish wheels to PyPI
+      #   env:
+      #     TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+      #     TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      #   run: |
+      #     twine upload dist/k2-*.whl
