@@ -97,7 +97,7 @@ jobs:
         run: |
           tag=$(python3 -c "import sys; print(''.join(sys.version[:3].split('.')))")
           export K2_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=$BUILD_TYPE"
-          export K2_MAKE_ARGS="-j1"
+          export K2_MAKE_ARGS="-j2"
           python3 setup.py bdist_wheel
 
       - name: Upload Wheel
