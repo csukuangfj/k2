@@ -40,7 +40,6 @@ import get_version
 get_package_version = get_version.get_package_version
 get_pytorch_version = get_version.get_pytorch_version
 is_for_pypi = get_version.is_for_pypi
-is_for_conda = get_version.is_for_conda
 
 if sys.version_info < (3,):
     print('Python 2 has reached end-of-life and is no longer supported by k2.')
@@ -86,25 +85,25 @@ class BuildExtension(build_ext):
         os.makedirs(self.build_lib, exist_ok=True)
 
         k2_dir = os.path.dirname(os.path.abspath(__file__))
-        if is_for_pypi() or is_for_conda():
-            num_jobs = '1'
-        else:
-            num_jobs = ''
 
         cmake_args = os.environ.get('K2_CMAKE_ARGS', '')
+        make_args = os.environ.get('K2_MAKE_ARGS', '')
+
+        if cmake_args == '':
+            cmake_args = '-DCMAKE_BUILD_TYPE=Release'
+
+        if make_args == '':
+            make_args = '-j'
 
         verbose = 0
         build_cmd = f'''
             cd {self.build_temp}
 
-            cmake \
-                -DCMAKE_BUILD_TYPE=Release \
-                {cmake_args} \
-                {k2_dir}
+            cmake {cmake_args} {k2_dir}
 
             cat k2/csrc/version.h
 
-            make -j{num_jobs} VERBOSE={verbose} _k2
+            make {make_args} _k2
         '''
         print(f'build command is:\n{build_cmd}')
 

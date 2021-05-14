@@ -40,7 +40,6 @@ static constexpr const char *kCudnnVersion = "@CUDNN_VERSION@";
 // Version of Python used to build k2 Python bindings.
 static constexpr const char *kPythonVersion = "@PYTHON_VERSION_MAJOR@.@PYTHON_VERSION_MINOR@";
 
-static constexpr const char *kPybindVersion ="@PYBIND11_VERSION_MAJOR@.@PYBIND11_VERSION_MINOR@.@PYBIND11_VERSION_PATCH@";
 // clang-format on
 
 // CMake build type, e.g., Release or Debug.
