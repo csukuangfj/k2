@@ -27,11 +27,11 @@ jobs:
         # python-version: [3.6, 3.7, 3.8, 3.9]
         python-version: ["3.8.0"]
         # cuda: ["10.1", "10.2", "11.0", "11.1"]
-        cuda: ["10.2"]
+        cuda: ["10.1"]
         # torch: ["1.5.0", "1.5.1", "1.6.0", "1.7.0", "1.7.1", "1.8.0"]
         torch: ["1.7.1"]
         # keep cuda value in sync with cuda
-        cuda_value: ["102"]
+        cuda_value: ["101"]
     # see https://hub.docker.com/u/pytorch
     # for available tags
     #
@@ -93,9 +93,11 @@ jobs:
       - name: Build pip packages
         shell: bash
         # env:
-          # K2_IS_FOR_PYPI: 1
+          K2_IS_FOR_PYPI: 1
         run: |
           tag=$(python3 -c "import sys; print(''.join(sys.version[:3].split('.')))")
+          export K2_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=$BUILD_TYPE"
+          export K2_MAKE_ARGS="-j1"
           python3 setup.py bdist_wheel
 
       - name: Upload Wheel
