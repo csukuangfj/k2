@@ -118,7 +118,7 @@ jobs:
       - name: Install conda dependencies
         shell: bash -l {0}
         run: |
-          # conda install -y -q anaconda
+          conda install -y -q anaconda
           conda install -y -q conda-build
           conda install -y -q bs4 requests tqdm
           conda install -y -c pytorch -c conda-forge pytorch=${{ matrix.torch }} cudatoolkit=${{ matrix.cuda }}

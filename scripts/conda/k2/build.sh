@@ -19,4 +19,7 @@ echo "which nvcc: $(which nvcc)"
 echo "gcc version: $($CC --version)"
 echo "nvcc version: $(nvcc --version)"
 
+export K2_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=Release"
+export K2_MAKE_ARGS="-j1"
+
 python3 setup.py install --single-version-externally-managed --record=record.txt

@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
 
+df -h
+free -m
+echo "===================="
+free -g
+
 cur_dir=$(cd $(dirname $BASH_SOURCE) && pwd)
 k2_dir=$(cd $cur_dir/../.. && pwd)
+
+echo "k2_dir: $k2_dir"
 
 export cuda=$K2_CUDA_VERSION
 export torch=$K2_TORCH_VERSION
