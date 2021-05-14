@@ -133,21 +133,14 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE ..
           cat k2/csrc/version.h
 
-      - name: Build _k2
+      - name: Build k2
         shell: bash
         run: |
-          echo "number of cores: $(nproc)"
-          cd build
-          # we cannot use -j here because of limited RAM
-          # of the VM provided by GitHub actions
-          make VERBOSE=1 -j2 _k2
-          ls -lh lib/*
-
-      - name: Build pip packages
-        shell: bash
-        run: |
+          export K2_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=$BUILD_TYPE"
+          export K2_MAKE_ARGS="-j1"
           python3 setup.py bdist_wheel
-          ls dist/
+          ls -lh dist/
+          ls -lh build/*
 
       - name: Upload Wheel
         uses: actions/upload-artifact@v2
