@@ -99,7 +99,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../core_concepts/index.html">Core concepts in k2</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">Python tutorials</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Ragged tensor tutorials</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Basics</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Basics</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#what-are-ragged-tensors">What are ragged tensors?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#concepts-about-ragged-tensors">Concepts about ragged tensors</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="operations.html">Operations</a></li>
 </ul>
 </li>
@@ -183,80 +187,255 @@
             
   <div class="section" id="basics">
 <h1>Basics<a class="headerlink" href="#basics" title="Permalink to this headline">¶</a></h1>
-<p>A ragged tensor or ragged array in k2 can be used to store the following kinds of data:</p>
+<p>In this tutorial, we describe</p>
 <blockquote>
-<div><ol class="arabic simple">
-<li><p>A list of lists. Each sub list may contain different number of entries.
-That is, they can have different lengths.</p></li>
-</ol>
-<blockquote>
-<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">]</span>
-</pre></div>
-</div>
-</div></blockquote>
-<ol class="arabic simple" start="2">
-<li><p>A list-of-list of lists.</p></li>
-</ol>
-<blockquote>
-<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">b</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]],</span> <span class="p">[[]],</span> <span class="p">[[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="p">[]]</span> <span class="p">]</span>
-</pre></div>
-</div>
-</div></blockquote>
-<ol class="arabic simple" start="3">
-<li><p>A list-of-list-of-list-of… lists. List can be nested in any number of levels.</p></li>
-</ol>
-</div></blockquote>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Ragged arrays are the <strong>core</strong> data structures in k2, designed by us
-<strong>independently</strong>. We were later told that TensorFlow was using the same
-ideas (See <a class="reference external" href="https://www.tensorflow.org/guide/ragged_tensor">tf.ragged</a>).</p>
-</div>
-<p>In k2, a ragged tensor contains two parts:</p>
+<div><ul>
+<li><p>What are ragged tensors?</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>a shape, which is of type <code class="xref py py-class docutils literal notranslate"><span class="pre">k2.RaggedShape</span></code></p></li>
-<li><p>a value, which can be accessed as a <strong>contiguous</strong>
-<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html">PyTorch tensor</a>.</p></li>
+<li><p>What are the differences between ragged tensors and regular tensors?</p></li>
+<li><p>How to create ragged tensors?</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>Various concepts relevant to ragged tensors, including</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>What is <code class="docutils literal notranslate"><span class="pre">RaggedShape</span></code>?</p></li>
+<li><p>What is <code class="docutils literal notranslate"><span class="pre">row_splits</span></code> ?</p></li>
+<li><p>What is <code class="docutils literal notranslate"><span class="pre">row_ids</span></code> ?</p></li>
+<li><p>What is <code class="docutils literal notranslate"><span class="pre">dim0</span></code> ?</p></li>
+<li><p>What is <code class="docutils literal notranslate"><span class="pre">tot_size</span></code> ?</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<div class="section" id="what-are-ragged-tensors">
+<h2>What are ragged tensors?<a class="headerlink" href="#what-are-ragged-tensors" title="Permalink to this headline">¶</a></h2>
+<p>Before talking about what ragged tensors are, let’s look at what non-ragged
+tensors, i.e., regular tensors, look like.</p>
+<blockquote>
+<div><ul>
+<li><p>2-D regular tensors</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;a.shape:&quot;</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="c1"># It prints</span>
+<span class="c1"># a.shape: (3, 4)</span>
+</pre></div>
+</div>
+<p>The shape of the 2-D regular tensor <code class="docutils literal notranslate"><span class="pre">a</span></code> is <code class="docutils literal notranslate"><span class="pre">(3,</span> <span class="pre">4)</span></code>, meaning it has 3
+rows and 4 columns. Each row has <strong>exactly</strong> 4 elements, no more, no less.</p>
+</li>
+<li><p>3-D regular tensors</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="p">[</span>
+            <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+            <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span>
+            <span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">],</span>
+        <span class="p">],</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;b.shape:&quot;</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="c1"># It prints</span>
+<span class="c1"># b.shape: (3, 3, 2)</span>
+</pre></div>
+</div>
+<p>The shape of the 3-D regular tensor <code class="docutils literal notranslate"><span class="pre">b</span></code> is <code class="docutils literal notranslate"><span class="pre">(3,</span> <span class="pre">3,</span> <span class="pre">2)</span></code>, meaning it has
+3 planes. Each plane has <strong>exactly</strong> 3 rows, no more, no less. Each row has
+<strong>exactly</strong> two entries, no more, no less.</p>
+</li>
+<li><p>N-D regular tensors (N &gt;= 4)</p>
+<p>We assume you know how to create N-D regular tensors.</p>
+</li>
+</ul>
+</div></blockquote>
+<p>After looking at what non-ragged tensors look like, let’s have a look at ragged
+tensors in <code class="docutils literal notranslate"><span class="pre">k2</span></code>.</p>
+<blockquote>
+<div><ul>
+<li><p>2-D ragged tensors</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">k2</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">k2</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+        <span class="p">[],</span>
+        <span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The 2-D ragged tensor <code class="docutils literal notranslate"><span class="pre">c</span></code> has 4 rows. However, unlike regular tensors,
+each row in <code class="docutils literal notranslate"><span class="pre">c</span></code> can have different number of elements. In this case,</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Row 0 has 5 entries: <code class="docutils literal notranslate"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">3,</span> <span class="pre">6,</span> <span class="pre">-5]</span></code></p></li>
+<li><p>Row 1 has 2 entries: <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code></p></li>
+<li><p>Row 2 is empty. It has no entries.</p></li>
+<li><p>Row 3 has only 1 entry: <code class="docutils literal notranslate"><span class="pre">[3]</span></code></p></li>
 </ul>
 </div></blockquote>
 <div class="admonition hint">
 <p class="admonition-title">Hint</p>
-<p>The <strong>value</strong> is stored contiguously in memory.</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">k2</span></code>, we say that <code class="docutils literal notranslate"><span class="pre">c</span></code> is a ragged tensor with <strong>two axes</strong>.</p>
 </div>
-<div class="toggle docutils container">
-<div class="header docutils container">
-<div class="admonition attention">
-<p class="admonition-title">Attention</p>
-<p>What is the dimension of the <strong>value</strong> as a torch tensor? (Click ▶ to see it)</p>
+</li>
+<li><p>3-D ragged tensors</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">d</span> <span class="o">=</span> <span class="n">k2</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="p">[</span>
+            <span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="p">[],</span>
+            <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="p">[],</span>
+            <span class="p">[],</span>
+            <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>
+            <span class="p">[],</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="p">[],</span>
+        <span class="p">],</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
 </div>
+<p>The 3-D ragged tensor <code class="docutils literal notranslate"><span class="pre">d</span></code> has 4 planes. Different from regular tensors,
+different planes in a ragged tensor can have different number of rows.
+Moreover, different rows within a plane can also have different number
+of entries.</p>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">k2</span></code>, we say that <code class="docutils literal notranslate"><span class="pre">d</span></code> is a ragged tensor with <strong>three axes</strong>.</p>
 </div>
-<p>It depends on the data type of of the ragged tensor. For instance,</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>if the data type is <code class="docutils literal notranslate"><span class="pre">int32_t</span></code>, the <strong>value</strong> is accessed as a <strong>1-D</strong> torch tensor with dtype <code class="docutils literal notranslate"><span class="pre">torch.int32</span></code>.</p></li>
-<li><p>if the data type is <code class="docutils literal notranslate"><span class="pre">float</span></code>, the <strong>value</strong> is accessed as a <strong>1-D</strong> torch tensor with dtype <code class="docutils literal notranslate"><span class="pre">torch.float32</span></code>.</p></li>
-<li><p>if the data type is <code class="docutils literal notranslate"><span class="pre">double</span></code>, the <strong>value</strong> is accessed as a <strong>1-D</strong> torch tensor with dtype <code class="docutils literal notranslate"><span class="pre">torch.float64</span></code>.</p></li>
+</li>
+<li><p>N-D ragged tensors (N &gt;= 4)</p>
+<p>Having seen how to create 2-D and 3-D ragged tensors, we assume you know how to
+create N-D ragged tensors.</p>
+</li>
 </ul>
 </div></blockquote>
-<p>If the data type is <code class="docutils literal notranslate"><span class="pre">k2::Arc</span></code>, which has the following definition
-<a class="reference external" href="https://github.com/k2-fsa/k2/blob/master/k2/csrc/fsa.h#L31">in C++</a>:</p>
+<p>A ragged tensor in <code class="docutils literal notranslate"><span class="pre">k2</span></code> has <code class="docutils literal notranslate"><span class="pre">N</span></code> (<code class="docutils literal notranslate"><span class="pre">N</span> <span class="pre">&gt;=</span> <span class="pre">2</span></code>) axes. Unlike regular tensors,
+each axis of a ragged tensor can have different number of elements.</p>
+<p>Ragged tensors are <strong>the most important</strong> data structures in <code class="docutils literal notranslate"><span class="pre">k2</span></code>. FSAs are
+represented as ragged tensors. There are also various operations defined on ragged
+tensors.</p>
+<p>At this point, we assume you know how to create <code class="docutils literal notranslate"><span class="pre">N-D</span></code> ragged tensors in <code class="docutils literal notranslate"><span class="pre">k2</span></code>.
+Let us do some exercises to check what you have learned.</p>
+<div class="section" id="exercise-1">
+<h3>Exercise 1<a class="headerlink" href="#exercise-1" title="Permalink to this headline">¶</a></h3>
+<div class="toggle docutils container">
+<div class="header docutils container">
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>How to create a ragged tensor with 2 axes, satisfying the following
+constraints:</p>
 <blockquote>
-<div><div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="nc">Arc</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<div><ul class="simple">
+<li><p>It has 3 rows.</p></li>
+<li><p>Row 0 has elements: <code class="docutils literal notranslate"><span class="pre">1,</span> <span class="pre">10,</span> <span class="pre">-1</span></code></p></li>
+<li><p>Row 1 is empty, i.e., it has no elements.</p></li>
+<li><p>Row 2 has two elements: <code class="docutils literal notranslate"><span class="pre">-1.5,</span> <span class="pre">2</span></code></p></li>
+</ul>
+</div></blockquote>
+<p>(Click ▶ to see it)</p>
+</div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">e</span> <span class="o">=</span> <span class="n">k2</span><span class="o">.</span><span class="n">RaggedTensor</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+        <span class="p">[],</span>
+        <span class="p">[</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="exercise-2">
+<h3>Exercise 2<a class="headerlink" href="#exercise-2" title="Permalink to this headline">¶</a></h3>
+<div class="toggle docutils container">
+<div class="header docutils container">
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>How to create a ragged tensor with only 1 axis?</p>
+<p>(Click ▶ to see it)</p>
+</div>
+</div>
+<p>You <strong>cannot</strong> create a ragged tensor with only 1 axis. Ragged tensors
+in <code class="docutils literal notranslate"><span class="pre">k2</span></code> have at least 2 axes.</p>
+</div>
+</div>
+</div>
+<div class="section" id="concepts-about-ragged-tensors">
+<h2>Concepts about ragged tensors<a class="headerlink" href="#concepts-about-ragged-tensors" title="Permalink to this headline">¶</a></h2>
+<p>A ragged tensor in <code class="docutils literal notranslate"><span class="pre">k2</span></code> consists of two parts:</p>
+<blockquote>
+<div><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">shape</span></code>, which is an instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">k2.RaggedTensor</span></code></p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>It is assumed that a shape  within a ragged tensor in <code class="docutils literal notranslate"><span class="pre">k2</span></code> is a constant.
+Once constructed, you are not expected to modify it. Otherwise, unexpected
+things can happen; you will be SAD.</p>
+</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data</span></code>, which is an <strong>array</strong> of type <code class="docutils literal notranslate"><span class="pre">T</span></code></p>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p><code class="docutils literal notranslate"><span class="pre">data</span></code> is stored <code class="docutils literal notranslate"><span class="pre">contiguously</span></code> in memory, whose entries have to be
+of the same type <code class="docutils literal notranslate"><span class="pre">T</span></code>. <code class="docutils literal notranslate"><span class="pre">T</span></code> can be either primitive types, such as
+<code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">float</span></code>, and <code class="docutils literal notranslate"><span class="pre">double</span></code> or can be user defined types. For instance,
+<code class="docutils literal notranslate"><span class="pre">data</span></code> in FSAs contains <code class="docutils literal notranslate"><span class="pre">arcs</span></code>, which is defined in C++
+<a class="reference external" href="https://github.com/k2-fsa/k2/blob/master/k2/csrc/fsa.h#L31">as follows</a>:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span> <span class="nc">Arc</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">  </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">src_state</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">dest_state</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">label</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="kt">float</span><span class="w"> </span><span class="n">score</span><span class="p">;</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
+</div>
+</li>
+</ul>
 </div></blockquote>
-<p>the <strong>value</strong> is acessed as a <strong>2-D</strong> torch tensor with dtype <code class="docutils literal notranslate"><span class="pre">torch.int32</span></code>.
-The <strong>2-D</strong> tensor has 4 columns: the first column contains <code class="docutils literal notranslate"><span class="pre">src_state</span></code>,
-the second column contains <code class="docutils literal notranslate"><span class="pre">dest_state</span></code>, the third column contains <code class="docutils literal notranslate"><span class="pre">label</span></code>,
-and the fourth column contains <code class="docutils literal notranslate"><span class="pre">score</span></code> (The float type is <strong>reinterpreted</strong> as
-int type without any conversions).</p>
-<p>There are only 1-D and 2-D <strong>value</strong> tensors in k2 at present.</p>
+<p>In the following, we describe what is inside a <code class="docutils literal notranslate"><span class="pre">shape</span></code> and how to manipulate
+<code class="docutils literal notranslate"><span class="pre">data</span></code>.</p>
+<div class="section" id="shape">
+<h3>Shape<a class="headerlink" href="#shape" title="Permalink to this headline">¶</a></h3>
+<p>To be done.</p>
+</div>
+<div class="section" id="data">
+<h3>data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h3>
+<p>TBD.</p>
+</div>
 </div>
 </div>
 
