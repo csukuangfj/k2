@@ -14,15 +14,13 @@ import os
 import re
 import sys
 sys.path.insert(0, os.path.abspath('../../k2/python'))
-sys.path.insert(0, os.path.abspath('../../build-ragged/lib'))
-sys.path.insert(0, os.path.abspath('../../build/lib'))
 
 import sphinx_rtd_theme
 
 # -- Project information -----------------------------------------------------
 
 project = 'k2'
-copyright = '2020, k2 development team'
+copyright = '2020-2021, k2 development team'
 author = 'k2 development team'
 
 
@@ -48,13 +46,10 @@ extensions = [
     'recommonmark',
     'sphinx.ext.autodoc',
     'sphinx.ext.githubpages',
-    'sphinx.ext.linkcode',
     'sphinx.ext.napoleon',
     'sphinx_autodoc_typehints',
     'sphinx_rtd_theme',
-    'sphinxcontrib.bibtex',
 ]
-bibtex_bibfiles = ['refs.bib']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -114,73 +109,3 @@ autodoc_default_options = {
     'exclude-members': '__weakref__'
 }
 
-
-# Resolve function for the linkcode extension.
-# Modified from https://github.com/rwth-i6/returnn/blob/master/docs/conf.py
-def linkcode_resolve(domain, info):
-
-    def find_source():
-        # try to find the file and line number, based on code from numpy:
-        # https://github.com/numpy/numpy/blob/master/doc/source/conf.py#L286
-        obj = sys.modules[info['module']]
-        for part in info['fullname'].split('.'):
-            obj = getattr(obj, part)
-        import inspect
-        import os
-        fn = inspect.getsourcefile(obj)
-        fn = os.path.relpath(fn, start='k2')
-        source, lineno = inspect.getsourcelines(obj)
-        return fn, lineno, lineno + len(source) - 1
-
-    if domain != 'py' or not info['module']:
-        return None
-    try:
-        filename = '{}#L{}-L{}'.format(*find_source())
-    except Exception:
-        return None
-
-    if '_k2' in filename:
-        return None
-
-    idx = filename.rfind('k2')
-    filename = filename[idx:]
-    return f'https://github.com/k2-fsa/k2/blob/master/k2/python/{filename}'
-
-# Replace key with value in the generated doc
-REPLACE_PATTERN = {
-  '_k2.ragged': 'k2.ragged',
-  'at::Tensor': 'torch.Tensor'
-}
-
-def replace(s):
-    replaced = True
-    while replaced:
-        replaced = False
-        for key in REPLACE_PATTERN:
-            if key in s:
-                s = s.replace(key, REPLACE_PATTERN[key])
-                replaced = True
-    return s
-
-# see https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#event-autodoc-process-docstring
-def replace_doc(app, what, name, obj, options, lines):
-    num_lines = len(lines)
-    for i in range(num_lines):
-        lines[i] = replace(lines[i])
-
-# see https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#event-autodoc-process-signature
-def replace_signature(app, what, name, obj, options, signature, return_annotation):
-    if signature:
-        signature = replace(signature)
-
-    if return_annotation:
-        return_annotation = replace(return_annotation)
-    return (signature, return_annotation)
-
-# Note: setup is called by sphinx automatically
-#
-# See https://www.sphinx-doc.org/en/master/extdev/appapi.html#extension-setup
-def setup(app):
-    app.add_css_file('custom.css')
-    app.connect('autodoc-process-signature', replace_signature)
-    app.connect('autodoc-process-docstring', replace_doc)
