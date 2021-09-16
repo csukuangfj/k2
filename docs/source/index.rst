@@ -12,8 +12,5 @@ k2
     :align: center
     :target: https://github.com/k2-fsa/k2
 
-.. HINT::
 
-  We use the lowercase ``k`` in ``k2``. That is, it is ``k2``, not ``K2``.
-
-  Documentation has been moved! Please visit  `<https://k2-fsa.github.io/k2/>`_.
+Documentation has been moved! Please visit  `<https://k2-fsa.github.io/k2/>`_.
