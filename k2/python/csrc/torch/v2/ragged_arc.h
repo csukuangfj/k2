@@ -20,10 +20,13 @@
  * limitations under the License.
  */
 
-#ifndef K2_PYTHON_CSRC_TORCH_V2_RAGGED_ARC__H_
-#define K2_PYTHON_CSRC_TORCH_V2_RAGGED_ARC__H_
+#ifndef K2_PYTHON_CSRC_TORCH_V2_RAGGED_ARC_H_
+#define K2_PYTHON_CSRC_TORCH_V2_RAGGED_ARC_H_
 
+#include <string>
 #include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 #include "k2/csrc/fsa.h"
 #include "k2/csrc/ragged.h"
@@ -58,6 +61,9 @@ struct RaggedArc {
    */
   RaggedArc(const std::string &s,
             const std::vector<std::string> &extra_label_names = {});
+
+  RaggedArc(const RaggedArc &src, const Ragged<Arc> &arcs,
+            torch::Tensor arc_map);
 
   RaggedArc(const RaggedArc &other) = default;
 
@@ -141,6 +147,8 @@ struct RaggedArc {
             Return `false` otherwise.
    */
   bool HasAttr(const std::string &name) const;
+
+
 
  private:
   void SetAttr(const std::string &name, torch::Tensor value) {

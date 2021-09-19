@@ -1,0 +1,64 @@
+/**
+ * @copyright
+ * Copyright      2021  Xiaomi Corp.  (authors: Wei Kang)
+ *
+ * @copyright
+ * See LICENSE for clarification regarding multiple authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef K2_PYTHON_CSRC_TORCH_V2_AUTOGRAD_UTILS_H_
+#define K2_PYTHON_CSRC_TORCH_V2_AUTOGRAD_UTILS_H_
+
+
+#include "k2/python/csrc/torch/v2/ops.h"
+#include "k2/python/csrc/torch/v2/ragged_arc.h"
+
+
+namespace k2 {
+
+class IndexSelectScoresFunction 
+    : public torch::autograd::Function<IndexSelectScoresFunction> {
+
+ public:
+   static torch::Tensor forward(torch::autograd::AutogradContext *ctx,
+       RaggedArc fsa, torch::Tensor unused_in_fsa_scores,
+       torch::Tensor arc_map) {
+    ctx->save_for_backward({unused_in_fsa_scores, arc_map}); 
+    return fsa.Scores();
+   }
+
+   static torch::autograd::tensor_list backward(
+       torch::autograd::AutogradContext *ctx,
+       torch::autograd::tensor_list grad_outputs) {
+     auto saved = ctx->get_saved_variables();
+     torch::Tensor scores_tensor = saved[0];
+     torch::Tensor arc_map_tensor = saved[1];
+     torch::Tensor grad_output_tensor = grad_outputs[0];
+     
+     torch::Tensor ans = torch::zeros_like(scores_tensor);
+
+     IndexAdd(arc_map_tensor, grad_output_tensor, &ans);
+
+     return {
+       torch::Tensor(),  // fsa
+       ans,              // unused_in_fsa_scores
+       torch::Tensor(),  // arc_map
+     };
+   }
+};
+
+}  // namespace k2
+
+#endif  // K2_PYTHON_CSRC_TORCH_V2_AUTOGRAD_UTILS_H_

@@ -20,9 +20,15 @@
  * limitations under the License.
  */
 
+#include <vector>
+#include <string>
+
+#include "k2/csrc/fsa_algo.h"
 #include "k2/csrc/fsa_utils.h"
 #include "k2/python/csrc/torch/torch_util.h"
 #include "k2/python/csrc/torch/v2/autograd/arc_sort.h"
+#include "k2/python/csrc/torch/v2/autograd/index_select.h"
+#include "k2/python/csrc/torch/v2/autograd/utils.h"
 #include "k2/python/csrc/torch/v2/ragged_arc.h"
 
 namespace k2 {
@@ -56,6 +62,32 @@ RaggedArc::RaggedArc(
   }
 
   // TODO: we also need to pass the name of extra_labels and ragged_labels.
+}
+
+RaggedArc::RaggedArc(const RaggedArc &src, const Ragged<Arc> &arcs,
+                     torch::Tensor arc_map) {
+  fsa = arcs;
+  for (auto iter = src.tensor_attrs.begin(); iter != src.tensor_attrs.end();
+      ++iter) {
+    auto value = IndexSelectFunction::apply(iter->second, arc_map, 0);
+    SetAttr(iter->first, value);
+  }
+
+  for (auto iter = src.ragged_tensor_attrs.begin();
+      iter != src.ragged_tensor_attrs.end(); ++iter) {
+    // Only integer types ragged attributes are supported now
+    K2_CHECK_EQ(iter->second.any.GetDtype(), kInt32Dtype);
+    auto value = const_cast<RaggedAny &>(iter->second).Index(arc_map, 0, false);
+    SetAttr(iter->first, value.first);
+  }
+
+  for (auto iter = src.other_attrs.begin(); iter != src.other_attrs.end();
+      ++iter) {
+    SetAttr(iter->first, iter->second);
+  }
+  // populate scores
+  Scores();
+  IndexSelectScoresFunction::apply(*this, src.Scores(), arc_map);
 }
 
 torch::Tensor &RaggedArc::Scores() {
@@ -115,7 +147,6 @@ std::string RaggedArc::ToString() const {
   // TODO: support fsa.NumAxes() == 3
   K2_CHECK_EQ(fsa.NumAxes(), 2);
 
-  int32_t num_extra_labels = 0;
   std::vector<Array1<int32_t>> extra_labels;
   for (auto &p : tensor_attrs) {
     if (p.second.scalar_type() == torch::kInt) {
@@ -133,9 +164,10 @@ std::string RaggedArc::ToString() const {
 }
 
 RaggedArc RaggedArc::ArcSort() /*const*/ {
-  RaggedArc out;
-  (void)ArcSortFunction::apply(*this, Scores(), &out);
-  return out;
+  Array1<int32_t> arc_map;
+  Ragged<Arc> arcs;
+  k2::ArcSort(fsa, &arcs, &arc_map);
+  return RaggedArc(*this, arcs, ToTorch<int32_t>(arc_map));
 }
 
 void RaggedArc::SetAttr(const std::string &name, py::object value) {
