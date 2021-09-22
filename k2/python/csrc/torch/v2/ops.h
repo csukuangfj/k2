@@ -103,6 +103,7 @@ namespace k2 {
 
   torch::Tensor SimpleRaggedIndexSelect(torch::Tensor src,
                                         RaggedAny &ragged);
+
 }  // namespace k2
 
 #endif  // K2_PYTHON_CSRC_TORCH_V2_OPS_H_

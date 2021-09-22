@@ -53,6 +53,10 @@ struct RaggedArc {
   /// The name of all attributes of this FSA
   std::unordered_set<std::string> all_attr_names;
 
+  /// It contains the fillers of all attributes.
+  /// It shares the same key with attributes.
+  std::unordered_map<std::string, float> fillers;
+
   // The default constructor initializes an invalid ragged tensor.
   RaggedArc() = default;
 
@@ -69,8 +73,72 @@ struct RaggedArc {
   RaggedArc(const std::string &s,
             const std::vector<std::string> &extra_label_names = {});
 
+  /**
+    Create an Fsa object, including autograd logic and propagating
+    properties from the source FSA.
+
+    This is intended to be called from unary functions on FSAs where the arc_map
+    is a Tensor of int32 (i.e. not ragged).
+
+    @param src The source Fsa, i.e. the arg to the unary function.
+    @param arcs The raw output of the unary function, as output by whatever C++
+                algorithm we used.
+    @param arc_map A map from arcs in `arcs` to the corresponding arc-index in
+                   `src`, or -1 if the arc had no source arc
+                   (e.g. added epsilon self-loops).
+   */
   RaggedArc(const RaggedArc &src, const Ragged<Arc> &arcs,
             torch::Tensor arc_map);
+
+  /**
+    Create an Fsa object, including autograd logic and propagating
+    properties from the source FSA.
+
+    This is intended to be called from unary functions on FSAs where the arc_map
+    is an instance of k2.RaggedTensor (with dtype torch.int32).
+
+    @param src  The source Fsa, i.e. the arg to the unary function.
+    @param arcs The raw output of the unary function, as output by whatever C++
+                 algorithm we used.
+    @param arc_map A map from arcs in `arcs` to the corresponding arc-index in
+                   `src`, or -1 if the arc had no source arc
+                   (e.g. :func:`remove_epsilon`).
+    @param remove_filler If true, for each attribute that is linear in `src`
+                         and ragged in the result, after turning it into a
+                         ragged tensor we will remove all items that are equal
+                         to the filler for that attribute.
+                         (0 by default; see Fsa.GetFiller()).
+                         Attribute values on final-arcs that are equal to -1
+                         will also be treated as fillers and removed,
+                         if remove_filler==True.
+   */
+  RaggedArc(const RaggedArc &src, const Ragged<Arc> &arcs,
+            RaggedAny &arc_map, bool remove_filler = true);
+
+  /**
+    Create an Fsa object, including autograd logic and propagating
+    properties from the source FSAs.
+
+    This is intended to be called from binary functions on FSAs where the
+    arc_map is a Tensor of int32 (i.e. not ragged).
+
+    Caution: Only the attributes with dtype `torch.float32` will be merged,
+             other kinds of attributes with the same name are discarded.
+
+    @param a_src  The source Fsa, i.e. the arg to the binary function.
+    @param b_src  The other source Fsa.
+    @param arcs The raw output of the binary function, as output by whatever C++
+                algorithm we used.
+    @param a_arc_map A map from arcs in `arcs` to the corresponding
+                     arc-index in `a_fsa` or -1 if the arc had no source arc
+                     (e.g. added epsilon self-loops).
+    @param a_arc_map A map from arcs in `dest_arcs` to the corresponding
+                     arc-index in `b_fsa` or -1 if the arc had no source arc
+                     (e.g. added epsilon self-loops).
+   */
+  RaggedArc(const RaggedArc &a_src, const RaggedArc &b_src,
+            const Ragged<Arc> &arcs,
+            torch::Tensor a_arc_map, torch::Tensor b_arc_map);
 
   RaggedArc(const RaggedArc &other) = default;
 
@@ -95,6 +163,13 @@ struct RaggedArc {
     the underlying memory with this FSA.
    */
   torch::Tensor Arcs() /*const*/;
+
+  /* Return a 1-D int32 torch tensor.
+
+    @caution You should not modify the returned tensor since it shares
+    the underlying memory with this FSA.
+   */
+  torch::Tensor Labels() /*const*/;
 
   /* Enable/Disable requires_grad of this tensor
 
@@ -156,6 +231,20 @@ struct RaggedArc {
             Return `false` otherwise.
    */
   bool HasAttr(const std::string &name) const;
+
+  /** Set filler by its attribute name.
+
+    @param name The attribute name.
+    @param filler The filler value.
+   */
+  void SetFiller(const std::string &name, float filler);
+
+  /** Get an filler by its attribute name.
+
+    @param name The attribute name.
+    @return Return the filler of the attribute if found, otherwise 0.
+   */
+  float GetFiller(const std::string &name) const;
 
   /** Wrapper for k2::GetForwardScores
 

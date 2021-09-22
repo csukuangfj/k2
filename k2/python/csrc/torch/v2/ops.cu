@@ -187,4 +187,5 @@ namespace k2 {
       return {};
     }
   }
+
 }  // namespace k2
