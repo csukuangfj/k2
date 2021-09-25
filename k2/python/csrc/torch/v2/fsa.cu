@@ -43,30 +43,6 @@ void PybindRaggedArc(py::module &m) {
       }),
       py::arg("s"), py::arg("extra_label_names") = py::none());
 
-  fsa.def(py::init([](const RaggedArc &src, const Ragged<Arc> &arcs,
-                      torch::Tensor arc_map) -> std::unique_ptr<RaggedArc> {
-            return std::make_unique<RaggedArc>(src, arcs, arc_map);
-          }),
-          py::arg("src"), py::arg("arcs"), py::arg("arc_map"));
-
-  fsa.def(py::init([](const RaggedArc &src, const Ragged<Arc> &arcs,
-                      RaggedAny &arc_map,
-                      bool remove_filler = true) -> std::unique_ptr<RaggedArc> {
-            return std::make_unique<RaggedArc>(src, arcs, arc_map,
-                                               remove_filler);
-          }),
-          py::arg("src"), py::arg("arcs"), py::arg("arc_map"),
-          py::arg("remove_filler") = true);
-
-  fsa.def(py::init([](const RaggedArc &a_src, const RaggedArc &b_src,
-                      const Ragged<Arc> &arcs, torch::Tensor a_arc_map,
-                      torch::Tensor b_arc_map) -> std::unique_ptr<RaggedArc> {
-            return std::make_unique<RaggedArc>(a_src, b_src, arcs, a_arc_map,
-                                               b_arc_map);
-          }),
-          py::arg("a_src"), py::arg("b_src"), py::arg("arcs"),
-          py::arg("a_arc_map"), py::arg("b_arc_map"));
-
   fsa.def("__str__", &RaggedArc::ToString);
   fsa.def("__repr__", &RaggedArc::ToString);
 
