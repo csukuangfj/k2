@@ -1,8 +1,8 @@
 /**
- * @brief python wrappers for k2.
+ * @brief python wrapper for k2 ops 
  *
  * @copyright
- * Copyright      2020  Mobvoi Inc.        (authors: Fangjun Kuang)
+ * Copyright      2021  Xiaomi Corp.  (authors: Wei Kang)
  *
  * @copyright
  * See LICENSE for clarification regarding multiple authors
@@ -20,13 +20,14 @@
  * limitations under the License.
  */
 
-#ifndef K2_PYTHON_CSRC_K2_H_
-#define K2_PYTHON_CSRC_K2_H_
+#ifndef K2_PYTHON_CSRC_TORCH_V2_K2_OPS_H_
+#define K2_PYTHON_CSRC_TORCH_V2_K2_OPS_H_
 
-#include "pybind11/embed.h"
-#include "pybind11/pybind11.h"
-#include "pybind11/stl.h"
+#include "k2/python/csrc/torch.h"
 
-namespace py = pybind11;
+namespace k2 {
 
-#endif  // K2_PYTHON_CSRC_K2_H_
+void PybindK2Ops(py::module &m);
+
+}  // namespace k2
+#endif  // K2_PYTHON_CSRC_TORCH_V2_K2_OPS_H_

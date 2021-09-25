@@ -23,6 +23,7 @@
 #include "k2/python/csrc/torch/v2/any.h"
 #include "k2/python/csrc/torch/v2/fsa.h"
 #include "k2/python/csrc/torch/v2/k2.h"
+#include "k2/python/csrc/torch/v2/k2_ops.h"
 #include "k2/python/csrc/torch/v2/ragged_shape.h"
 
 namespace k2 {
@@ -38,6 +39,12 @@ void PybindV2(py::module &m) {
   PybindRaggedAny(ragged);
   PybindRaggedArc(ragged);
   m.attr("RaggedArc") = ragged.attr("Fsa");  // TODO: remove it
+
+  // Add v2 submodule to avoid conflicts with original version, will remove it
+  // later.
+  py::module v2 = m.def_submodule(
+      "v2", "Sub module containing operations for v2 ops in k2");
+  PybindK2Ops(v2);
 }
 
 }  // namespace k2
