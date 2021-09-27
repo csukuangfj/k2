@@ -21,13 +21,15 @@
 #ifndef K2_PYTHON_CSRC_TORCH_V2_AUTOGRAD_UTILS_H_
 #define K2_PYTHON_CSRC_TORCH_V2_AUTOGRAD_UTILS_H_
 
+#include <utility>
+
 #include "k2/python/csrc/torch/v2/ops.h"
 #include "k2/python/csrc/torch/v2/ragged_arc.h"
 
 namespace k2 {
 
-class IndexSelectScoresFunction
-    : public torch::autograd::Function<IndexSelectScoresFunction> {
+class PhantomIndexSelectScoresFunction
+    : public torch::autograd::Function<PhantomIndexSelectScoresFunction> {
  public:
   static torch::Tensor forward(torch::autograd::AutogradContext *ctx,
                                RaggedArc &fsa,
@@ -57,8 +59,8 @@ class IndexSelectScoresFunction
   }
 };
 
-class IndexAndSumScoresFunction
-    : public torch::autograd::Function<IndexAndSumScoresFunction> {
+class PhantomIndexAndSumScoresFunction
+    : public torch::autograd::Function<PhantomIndexAndSumScoresFunction> {
  public:
   static torch::Tensor forward(torch::autograd::AutogradContext *ctx,
                                RaggedArc &fsa,

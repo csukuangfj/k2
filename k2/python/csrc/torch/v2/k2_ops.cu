@@ -1,5 +1,5 @@
 /**
- * @brief Wraps k2 operations 
+ * @brief Wraps k2 operations
  *
  * @copyright
  * Copyright      2021  Xiaomi Corp.  (authors: Wei Kang)
@@ -30,6 +30,7 @@
 #include "k2/python/csrc/torch/v2/autograd/index_select.h"
 #include "k2/python/csrc/torch/v2/doc/doc.h"
 #include "k2/python/csrc/torch/v2/doc/k2_ops.h"
+#include "k2/python/csrc/torch/v2/k2_ops.h"
 #include "k2/python/csrc/torch/v2/ops.h"
 #include "k2/python/csrc/torch/v2/ragged_any.h"
 #include "k2/python/csrc/torch/v2/ragged_arc.h"
@@ -39,16 +40,18 @@ namespace k2 {
 void PybindK2Ops(py::module &m) {
   m.def(
       "index_select",
-      [](torch::Tensor src, torch::Tensor index, float default_value)
-      -> torch::Tensor {
+      [](torch::Tensor src, torch::Tensor index,
+         float default_value) -> torch::Tensor {
         return IndexSelectFunction::apply(src, index, default_value);
       },
       py::arg("src"), py::arg("index"), py::arg("default_value") = 0,
       kTensorIndexSelectDoc);
 
   m.def("simple_ragged_index_select", &k2::SimpleRaggedIndexSelect,
-      py::arg("src"), py::arg("indexes"),
-      kSimpleRaggedIndexSelectDoc);
+        py::arg("src"), py::arg("indexes"), kSimpleRaggedIndexSelectDoc);
+
+  m.def("index_add", &k2::IndexAdd, py::arg("index"), py::arg("value"),
+        py::arg("in_out"), kTensorIndexAddDoc);
 }
 
 }  // namespace k2

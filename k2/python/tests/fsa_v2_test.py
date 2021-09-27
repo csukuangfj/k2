@@ -28,6 +28,7 @@ import torch
 
 
 class TestFsa(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
         cls.devices = [torch.device("cpu")]
@@ -47,7 +48,8 @@ class TestFsa(unittest.TestCase):
         fsa = k2r.Fsa(s)
 
         arcs = fsa.arcs
-        expected_arcs = torch.tensor([[0, 1, 1], [1, 2, 2], [2, 3, -1]]).to(fsa.arcs)
+        expected_arcs = torch.tensor([[0, 1, 1], [1, 2, 2], [2, 3,
+                                                             -1]]).to(fsa.arcs)
         assert torch.all(torch.eq(arcs[:, :3], expected_arcs))
 
         scores = fsa.scores
@@ -120,16 +122,13 @@ class TestFsa(unittest.TestCase):
                 fsa = k2r.Fsa(s)
                 fsa_vec = k2r.Fsa.from_fsas([fsa])
                 forward_scores = fsa_vec.get_forward_scores(
-                    use_double_scores=use_double_scores, log_semiring=False
-                )
-                expected_forward_scores = torch.tensor(
-                    [
-                        0,  # start state
-                        0.1,  # state 1, arc: 0 -> 1 (2/0.1)
-                        2.2,  # state 2, arc: 0 -> 2 (3/2.2)
-                        3.1,  # state 3, arc: 1 -> 3 (-1/3.0)
-                    ]
-                ).to(forward_scores)
+                    use_double_scores=use_double_scores, log_semiring=False)
+                expected_forward_scores = torch.tensor([
+                    0,  # start state
+                    0.1,  # state 1, arc: 0 -> 1 (2/0.1)
+                    2.2,  # state 2, arc: 0 -> 2 (3/2.2)
+                    3.1,  # state 3, arc: 1 -> 3 (-1/3.0)
+                ]).to(forward_scores)
                 assert torch.allclose(forward_scores, expected_forward_scores)
 
 

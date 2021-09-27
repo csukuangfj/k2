@@ -31,8 +31,12 @@
 
 namespace k2 {
 
-void IndexAdd(torch::Tensor index, torch::Tensor value,
-              torch::Tensor *in_out);
+// note it supports only 1-D and 2-D tensors.
+// It has identical semantics as torch.Tensor.index_add_
+// except that it requires the dtype of the input index
+// to be torch.int32, whereas PyTorch expects the dtype to be
+// torch.int64. Furthermore, it ignores index[i] == -1.
+void IndexAdd(torch::Tensor index, torch::Tensor value, torch::Tensor *in_out);
 
 /* Returns a 1-D tensor which indexes the src tensor using entries
    from `index`.
@@ -101,8 +105,7 @@ template <typename T>
 torch::Tensor SimpleRaggedIndexSelect1D(torch::Tensor src,
                                         Ragged<int32_t> &indexes);
 
-torch::Tensor SimpleRaggedIndexSelect(torch::Tensor src,
-                                      RaggedAny &ragged);
+torch::Tensor SimpleRaggedIndexSelect(torch::Tensor src, RaggedAny &ragged);
 
 }  // namespace k2
 

@@ -74,6 +74,14 @@ struct __attribute__((__visibility__("default"))) RaggedArc {
   RaggedArc(const std::string &s,
             const std::vector<std::string> &extra_label_names = {});
 
+  RaggedArc(const RaggedArc &other) = default;
+
+  RaggedArc &operator=(const RaggedArc &other) = default;
+
+  RaggedArc(RaggedArc &&other) = default;
+
+  RaggedArc &operator=(RaggedArc &&other) = default;
+
   /**
     Create an Fsa object, including autograd logic and propagating
     properties from the source FSA.
@@ -88,8 +96,9 @@ struct __attribute__((__visibility__("default"))) RaggedArc {
                    `src`, or -1 if the arc had no source arc
                    (e.g. added epsilon self-loops).
    */
-  RaggedArc(const RaggedArc &src, const Ragged<Arc> &arcs,
-            torch::Tensor arc_map);
+  static RaggedArc FromUnaryFunctionTensor(const RaggedArc &src,
+                                           const Ragged<Arc> &arcs,
+                                           torch::Tensor arc_map);
 
   /**
     Create an Fsa object, including autograd logic and propagating
@@ -113,8 +122,10 @@ struct __attribute__((__visibility__("default"))) RaggedArc {
                          will also be treated as fillers and removed,
                          if remove_filler==True.
    */
-  RaggedArc(const RaggedArc &src, const Ragged<Arc> &arcs, RaggedAny &arc_map,
-            bool remove_filler = true);
+  static RaggedArc FromUnaryFunctionRagged(const RaggedArc &src,
+                                           const Ragged<Arc> &arcs,
+                                           RaggedAny &arc_map,
+                                           bool remove_filler = true);
 
   /**
     Create an Fsa object, including autograd logic and propagating
@@ -137,17 +148,11 @@ struct __attribute__((__visibility__("default"))) RaggedArc {
                      arc-index in `b_fsa` or -1 if the arc had no source arc
                      (e.g. added epsilon self-loops).
    */
-  RaggedArc(const RaggedArc &a_src, const RaggedArc &b_src,
-            const Ragged<Arc> &arcs, torch::Tensor a_arc_map,
-            torch::Tensor b_arc_map);
-
-  RaggedArc(const RaggedArc &other) = default;
-
-  RaggedArc &operator=(const RaggedArc &other) = default;
-
-  RaggedArc(RaggedArc &&other) = default;
-
-  RaggedArc &operator=(RaggedArc &&other) = default;
+  static RaggedArc FromBinaryFunctionTensor(const RaggedArc &a_src,
+                                            const RaggedArc &b_src,
+                                            const Ragged<Arc> &arcs,
+                                            torch::Tensor a_arc_map,
+                                            torch::Tensor b_arc_map);
 
   // Populate `this->scores` and return it
   torch::Tensor &Scores();
@@ -156,6 +161,9 @@ struct __attribute__((__visibility__("default"))) RaggedArc {
 
   int32_t Properties();
   std::string PropertiesStr() const;
+
+  RaggedArc To(torch::Device device) const;
+  RaggedArc To(const std::string &device) const;
 
   /* Return a 2-D int32 torch tensor.
      Each row represents an arc, where:

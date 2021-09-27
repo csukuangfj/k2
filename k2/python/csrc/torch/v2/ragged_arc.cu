@@ -66,63 +66,68 @@ RaggedArc::RaggedArc(
   // TODO: we also need to pass the name of extra_labels and ragged_labels.
 }
 
-RaggedArc::RaggedArc(const RaggedArc &src, const Ragged<Arc> &arcs,
-                     torch::Tensor arc_map)
-    : fsa(arcs) {
-  Properties();
+RaggedArc RaggedArc::FromUnaryFunctionTensor(const RaggedArc &src,
+                                             const Ragged<Arc> &arcs,
+                                             torch::Tensor arc_map) {
+  RaggedArc dest(arcs);
 
-  SetTensorAttrs(src, arc_map);
+  dest.Properties();
 
-  SetRaggedTensorAttrs(src, arc_map);
+  dest.SetTensorAttrs(src, arc_map);
 
-  SetOtherAttrs(src);
+  dest.SetRaggedTensorAttrs(src, arc_map);
 
-  // populate scores
-  Scores();
-  IndexSelectScoresFunction::apply(*this, src.Scores(), arc_map);
+  dest.SetOtherAttrs(src);
+
+  PhantomIndexSelectScoresFunction::apply(dest, src.Scores(), arc_map);
+  return dest;
 }
 
-RaggedArc::RaggedArc(const RaggedArc &src, const Ragged<Arc> &arcs,
-                     RaggedAny &arc_map, bool remove_filler /*= true*/)
-    : fsa(arcs) {
-  Properties();
+RaggedArc RaggedArc::FromUnaryFunctionRagged(const RaggedArc &src,
+                                             const Ragged<Arc> &arcs,
+                                             RaggedAny &arc_map,
+                                             bool remove_filler /*= true*/) {
+  RaggedArc dest(arcs);
+  dest.Properties();
 
   for (auto iter = src.tensor_attrs.begin(); iter != src.tensor_attrs.end();
        ++iter) {
     if (remove_filler && iter->second.scalar_type() == torch::kInt32) {
-      int32_t filler = (int32_t)GetFiller(iter->first);
+      int32_t filler = (int32_t)src.GetFiller(iter->first);
       if (filler != -1) {
         torch::Tensor value = iter->second.clone();
         auto masking = torch::logical_or(
             torch::ne(const_cast<RaggedArc &>(src).Labels(), -1),
             torch::ne(value, -1));
-        value = torch::where(
-            masking, value, torch::tensor(filler, torch::dtype(torch::kInt32)));
+        auto filler_scalar = torch::tensor(
+            filler, torch::dtype(torch::kInt32).device(value.device()));
+        value = torch::where(masking, value, filler_scalar);
         auto new_value = arc_map.Index(value, py::int_(filler));
-        SetAttr(iter->first, new_value.RemoveValuesEq(py::int_(filler)));
+        dest.SetAttr(iter->first, new_value.RemoveValuesEq(py::int_(filler)));
       }
     } else {
       K2_CHECK(iter->second.dtype() == torch::kFloat32 ||
                iter->second.dtype() == torch::kFloat64);
       torch::Tensor new_value = arc_map.IndexAndSum(iter->second);
-      SetAttr(iter->first, new_value);
+      dest.SetAttr(iter->first, new_value);
     }
   }
 
-  SetRaggedTensorAttrs(src, arc_map);
+  dest.SetRaggedTensorAttrs(src, arc_map);
 
-  SetOtherAttrs(src);
+  dest.SetOtherAttrs(src);
 
-  // Populate scores
-  Scores();
-  IndexAndSumScoresFunction::apply(*this, src.Scores(), arc_map);
+  PhantomIndexAndSumScoresFunction::apply(dest, src.Scores(), arc_map);
+  return dest;
 }
 
-RaggedArc::RaggedArc(const RaggedArc &a_src, const RaggedArc &b_src,
-                     const Ragged<Arc> &arcs, torch::Tensor a_arc_map,
-                     torch::Tensor b_arc_map)
-    : fsa(arcs) {
-  Properties();
+RaggedArc RaggedArc::FromBinaryFunctionTensor(const RaggedArc &a_src,
+                                              const RaggedArc &b_src,
+                                              const Ragged<Arc> &arcs,
+                                              torch::Tensor a_arc_map,
+                                              torch::Tensor b_arc_map) {
+  RaggedArc dest(arcs);
+  dest.Properties();
   for (auto iter = a_src.tensor_attrs.begin(); iter != a_src.tensor_attrs.end();
        ++iter) {
     float filler = a_src.GetFiller(iter->first);
@@ -139,26 +144,30 @@ RaggedArc::RaggedArc(const RaggedArc &a_src, const RaggedArc &b_src,
       auto new_value =
           IndexSelectFunction::apply(iter->second, a_arc_map, filler) +
           IndexSelectFunction::apply(b_value, b_arc_map, filler);
-      SetAttr(iter->first, new_value);
+      dest.SetAttr(iter->first, new_value);
     } else {
       auto new_value =
           IndexSelectFunction::apply(iter->second, a_arc_map, filler);
-      SetAttr(iter->first, new_value);
+      dest.SetAttr(iter->first, new_value);
     }
   }
 
-  SetRaggedTensorAttrs(a_src, a_arc_map);
+  dest.SetRaggedTensorAttrs(a_src, a_arc_map);
 
-  SetOtherAttrs(a_src);
+  dest.SetOtherAttrs(a_src);
 
-  SetTensorAttrs(b_src, b_arc_map, false);
+  dest.SetTensorAttrs(b_src, b_arc_map, false);
 
-  SetRaggedTensorAttrs(b_src, b_arc_map, false);
+  dest.SetRaggedTensorAttrs(b_src, b_arc_map, false);
 
-  SetOtherAttrs(b_src, false);
+  dest.SetOtherAttrs(b_src, false);
 
-  scores = IndexSelectFunction::apply(a_src.Scores(), a_arc_map, 0) +
-           IndexSelectFunction::apply(b_src.Scores(), b_arc_map, 0);
+  // The following will actually overwrite `scores` with the same
+  // value it had before; but this enables the autograd to work since
+  // we do it using torch mechanisms.
+  dest.SetScores(IndexSelectFunction::apply(a_src.Scores(), a_arc_map, 0) +
+                 IndexSelectFunction::apply(b_src.Scores(), b_arc_map, 0));
+  return dest;
 }
 
 void RaggedArc::SetTensorAttrs(const RaggedArc &src, torch::Tensor arc_map,
@@ -211,22 +220,9 @@ void RaggedArc::SetRaggedTensorAttrs(const RaggedArc &src, RaggedAny &arc_map,
   }
 }
 
-void RaggedArc::SetScores(torch::Tensor score) {
-  scores = score;
-  auto device_type = ToTorchDeviceType(fsa.Context()->GetDeviceType());
-  int32_t device_id = fsa.Context()->GetDeviceId();
-  auto device = torch::Device(device_type, device_id);
-  auto scalar_type = ToScalarType<float>::value;
-  // an Arc has 4 members
-  static_assert(sizeof(Arc) == 4 * sizeof(int32_t), "");
-
-  std::vector<int64_t> sizes = {fsa.values.Dim(), 4};  // [num_rows, num_cols]
-  std::vector<int64_t> strides = {4, 1};               // in number of elements
-  auto options = torch::device(device).dtype(scalar_type);
-
-  auto tmp_scores = torch::from_blob(
-      fsa.values.Data(), sizes, strides, [](void *) {}, options);
-  tmp_scores.index_put_({"...", -1}, score);
+void RaggedArc::SetScores(torch::Tensor scores) {
+  K2_CHECK_EQ(scores.numel(), fsa.NumElements());
+  Scores().copy_(scores);
 }
 
 torch::Tensor &RaggedArc::Scores() {
@@ -243,7 +239,8 @@ torch::Tensor &RaggedArc::Scores() {
     auto options = torch::device(device).dtype(scalar_type);
 
     auto tmp_scores = torch::from_blob(
-        fsa.values.Data(), sizes, strides, [](void *) {}, options);
+        fsa.values.Data(), sizes, strides,
+        [saved_region = fsa.values.GetRegion()](void *) {}, options);
     scores = tmp_scores.index({"...", -1});
   }
   return scores;
@@ -284,21 +281,52 @@ torch::Tensor RaggedArc::Arcs() /*const*/ {
   std::vector<int64_t> strides = {4, 1};               // in number of elements
   auto options = torch::device(device).dtype(scalar_type);
 
-  // NOTE: We are accessing it from python as a property of an FSA,
-  // so it is alive as long as the underlying FSA is alive.
   return torch::from_blob(
-      fsa.values.Data(), sizes, strides, [](void *) {}, options);
+      fsa.values.Data(), sizes, strides,
+      [saved_region = fsa.values.GetRegion()](void *) {}, options);
 }
 
 torch::Tensor RaggedArc::Labels() /*const*/ { return Arcs().index({"...", 2}); }
 
 void RaggedArc::SetLabels(torch::Tensor labels) {
-  Arcs().index_put_({"...", 2}, labels);
+  K2_CHECK_EQ(labels.numel(), fsa.NumElements());
+  Arcs().index({"...", 2}).copy_(labels);
 }
 
 RaggedArc &RaggedArc::SetRequiresGrad(bool requires_grad /*=true*/) {
   Scores().requires_grad_(requires_grad);
   return *this;
+}
+
+RaggedArc RaggedArc::To(torch::Device device) const {
+  ContextPtr context = fsa.Context();
+  if (device.is_cpu()) {
+    // CPU -> CPU
+    if (context->GetDeviceType() == kCpu) return *this;
+
+    // CUDA -> CPU
+    DeviceGuard guard(context);
+    return RaggedArc(fsa.To(GetCpuContext()));
+  }
+
+  K2_CHECK(device.is_cuda()) << device.str();
+
+  int32_t device_index = device.index();
+
+  if (context->GetDeviceType() == kCuda &&
+      context->GetDeviceId() == device_index)
+    // CUDA to CUDA, and it's the same device
+    return *this;
+
+  // CPU to CUDA
+  // or from one GPU to another GPU
+  DeviceGuard guard(device_index);
+  return RaggedArc(fsa.To(GetCudaContext(device_index)));
+}
+
+RaggedArc RaggedArc::To(const std::string &device) const {
+  torch::Device d(device);
+  return this->To(d);
 }
 
 std::string RaggedArc::ToString() const {
@@ -344,7 +372,8 @@ RaggedArc RaggedArc::ArcSort() /*const*/ {
   Array1<int32_t> arc_map;
   Ragged<Arc> arcs;
   k2::ArcSort(fsa, &arcs, &arc_map);
-  return RaggedArc(*this, arcs, ToTorch<int32_t>(arc_map));
+  return FromUnaryFunctionTensor(*this, arcs, ToTorch<int32_t>(arc_map));
+  // return RaggedArc(*this, arcs, ToTorch<int32_t>(arc_map));
 }
 
 void RaggedArc::SetAttr(const std::string &name, py::object value) {

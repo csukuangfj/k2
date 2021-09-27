@@ -1,6 +1,6 @@
 from _k2 import DeterminizeWeightPushingType
 # from _k2 import simple_ragged_index_select
-from _k2.v2 import fsa_from_unary_function_tensor
+from _k2.v2 import index_add
 from _k2.v2 import index_select
 from _k2.v2 import simple_ragged_index_select
 from .ragged import RaggedShape
@@ -48,7 +48,7 @@ from .fsa_properties import to_str as properties_to_str
 from .nbest import Nbest
 from .ops import cat
 from .ops import compose_arc_maps
-from .ops import index_add
+# from .ops import index_add
 from .ops import index_fsa
 # from .ops import index_select
 #
