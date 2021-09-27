@@ -102,6 +102,12 @@ Note:
 Caution:
   It supports only 1-D and 2-D tensors.
 
+Caution:
+  `in_out` is modified **in-place**.
+
+Caution:
+  This operation does not support autograd.
+
 >>> import torch
 >>> import k2
 >>> index = torch.tensor([0, 1, 2, -1, 4, -1], dtype=torch.int32)
@@ -133,10 +139,11 @@ Args:
     Its `ndim` equals to `value.ndim`. If it is a 2-D tensor, then
     `in_out.shape[1] == value.shape[1]`.
     Must satisfy `in_out.dtype == value.dtype`.
+    Will be modified in place, the modified tensor satisfies
+    `in_out[index[i]] += value[i]` if `index[i] != -1`
 
 Returns:
-  Return a tensor which satisfies `in_out[index[i]] += value[i]`
-  if `index[i] != -1`
+  None.
 )doc";
 
 }  // namespace k2

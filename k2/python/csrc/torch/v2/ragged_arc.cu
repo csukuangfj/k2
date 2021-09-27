@@ -373,7 +373,6 @@ RaggedArc RaggedArc::ArcSort() /*const*/ {
   Ragged<Arc> arcs;
   k2::ArcSort(fsa, &arcs, &arc_map);
   return FromUnaryFunctionTensor(*this, arcs, ToTorch<int32_t>(arc_map));
-  // return RaggedArc(*this, arcs, ToTorch<int32_t>(arc_map));
 }
 
 void RaggedArc::SetAttr(const std::string &name, py::object value) {

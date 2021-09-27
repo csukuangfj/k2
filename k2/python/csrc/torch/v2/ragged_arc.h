@@ -157,11 +157,15 @@ struct __attribute__((__visibility__("default"))) RaggedArc {
   // Populate `this->scores` and return it
   torch::Tensor &Scores();
   const torch::Tensor &Scores() const;
+  // Set scores, will modify scores in fsa.arcs
   void SetScores(torch::Tensor scores);
 
+  // Get fsa properties.
   int32_t Properties();
+  // Get fsa properties as string format.
   std::string PropertiesStr() const;
 
+  // Transfer current fsa to another device.
   RaggedArc To(torch::Device device) const;
   RaggedArc To(const std::string &device) const;
 
@@ -184,6 +188,7 @@ struct __attribute__((__visibility__("default"))) RaggedArc {
    */
   torch::Tensor Labels() /*const*/;
 
+  // Set labels, will modify labels in fsa.arcs
   void SetLabels(torch::Tensor labels);
 
   /* Enable/Disable requires_grad of this tensor
@@ -288,9 +293,26 @@ struct __attribute__((__visibility__("default"))) RaggedArc {
     ragged_tensor_attrs[name] = value;
   }
 
+  /* Propagate tensor attributes from src.
+   *
+   * if `over_write` is true, attributes in current fsa with the same name as
+   * attributes in src will be overworted by attributes in src.
+   */
   void SetTensorAttrs(const RaggedArc &src, torch::Tensor arc_map,
                       bool over_write = true);
+
+  /* Propagate other attributes from src.
+   *
+   * if `over_write` is true, attributes in current fsa with the same name as
+   * attributes in src will be overworted by attributes in src.
+   */
   void SetOtherAttrs(const RaggedArc &src, bool over_write = true);
+
+  /* Propagate ragged attributes from src.
+   *
+   * if `over_write` is true, attributes in current fsa with the same name as
+   * attributes in src will be overworted by attributes in src.
+   */
   void SetRaggedTensorAttrs(const RaggedArc &src, torch::Tensor arc_map,
                             bool over_write = true);
   void SetRaggedTensorAttrs(const RaggedArc &src, RaggedAny &arc_map,
