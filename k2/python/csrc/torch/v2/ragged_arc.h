@@ -62,6 +62,8 @@ struct __attribute__((__visibility__("default"))) RaggedArc {
   RaggedArc() = default;
 
   explicit RaggedArc(const Ragged<Arc> &fsa) : fsa(fsa) {}
+  RaggedArc(const Ragged<Arc> &fsa, torch::Tensor scores)
+      : fsa(fsa), scores(scores) {}
 
   // TODO: support more options, e.g.,
   /* Construct a RaggedArc from a string.
@@ -277,6 +279,9 @@ struct __attribute__((__visibility__("default"))) RaggedArc {
             If use_double_scores is True, the dtype of the returned tensor is
             torch.float64; otherwise, the dtype is torch.float32.
    */
+  torch::Tensor GetForwardScoresImpl(bool use_double_scores, bool log_semiring);
+
+  /// GetForwardScores() supporting autograd
   torch::Tensor GetForwardScores(bool use_double_scores, bool log_semiring);
 
  private:
@@ -318,8 +323,9 @@ struct __attribute__((__visibility__("default"))) RaggedArc {
   void SetRaggedTensorAttrs(const RaggedArc &src, RaggedAny &arc_map,
                             bool over_write = true);
 
-  /* Wrapper for k2::GetStateBatches.
-
+ public:  // we make these functions public since they are called in autograd
+          // related functions
+  /** Wrapper for k2::GetStateBatches.
      If `cached_ragged_tensor` already contains the value, no
      computation is performed and the value is return directly
 
@@ -329,7 +335,7 @@ struct __attribute__((__visibility__("default"))) RaggedArc {
    */
   Ragged<int32_t> GetStateBatches(bool transpose = true);
 
-  /* Wrapper for k2::GetDestStates.
+  /** Wrapper for k2::GetDestStates.
 
      If `cached_tensor` already contains the value, no
      computation is performed and the value is return directly
@@ -340,7 +346,7 @@ struct __attribute__((__visibility__("default"))) RaggedArc {
    */
   Array1<int32_t> GetDestStates(bool as_idx01);
 
-  /* Wrapper for k2::GetIncomingArcs.
+  /** Wrapper for k2::GetIncomingArcs.
 
      If `cached_ragged_tensor` already contains the value, no
      computation is performed and the value is return directly
@@ -351,7 +357,7 @@ struct __attribute__((__visibility__("default"))) RaggedArc {
    */
   Ragged<int32_t> GetIncomingArcs();
 
-  /* Wrapper for k2::GetIncomingArcIndexBatches.
+  /** Wrapper for k2::GetIncomingArcIndexBatches.
 
      If `cached_ragged_tensor` already contains the value, no
      computation is performed and the value is return directly
@@ -362,7 +368,7 @@ struct __attribute__((__visibility__("default"))) RaggedArc {
    */
   Ragged<int32_t> GetEnteringArcIndexBatches();
 
-  /* It uses k2::GetForwardScores() to compute `entering_arcs`.
+  /** It uses k2::GetForwardScores() to compute `entering_arcs`.
 
      If `cached_tensor` already contains the value, no
      computation is performed and the value is return directly
@@ -372,6 +378,17 @@ struct __attribute__((__visibility__("default"))) RaggedArc {
      and returns it.
    */
   Array1<int32_t> GetEnteringArcs(bool use_double_scores);
+
+  /** Wrapper for k2::GetLeavingArcIndexBatches.
+
+     If `cached_ragged_tensor` already contains the value, no
+     computation is performed and the value is return directly
+
+     If `cached_ragged_tensor` does not contain the value, it
+     computes the leaving arc batches, saves it into `cached_ragged_tensor`,
+     and returns it.
+   */
+  Ragged<int32_t> GetLeavingArcIndexBatches();
 
  private:
   /// It saves intermediate results for various FSA operations
