@@ -27,7 +27,7 @@
 PYBIND11_MODULE(_k2, m) {
   m.doc() = "pybind11 binding of k2";
   // _k2 depends on torch, we should import torch before importing _k2.
-  m.import("torch");
+  py::module_::import("torch");
   PybindVersion(m);
   PybindTorch(m);
 }

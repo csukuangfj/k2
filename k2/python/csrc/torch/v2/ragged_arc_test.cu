@@ -22,10 +22,10 @@
 
 #include "gtest/gtest.h"
 #include "k2/csrc/fsa_algo.h"
-#include "k2/python/csrc/k2.h"
 #include "k2/python/csrc/torch/torch_util.h"
 #include "k2/python/csrc/torch/v2/ragged_any.h"
 #include "k2/python/csrc/torch/v2/ragged_arc.h"
+#include "pybind11/embed.h"
 
 namespace k2 {
 
@@ -93,7 +93,6 @@ TEST(RaggedArcTest, FromUnaryFunctionTensor) {
 
     torch::Tensor sum_attr =
         (dest.GetAttr("float_attr").cast<torch::Tensor>() * scale).sum();
-
     torch::Tensor sum_score = (dest.Scores() * scale).sum();
 
     {

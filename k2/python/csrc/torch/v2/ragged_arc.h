@@ -124,7 +124,7 @@ struct __attribute__((__visibility__("default"))) RaggedArc {
                          will also be treated as fillers and removed,
                          if remove_filler==True.
    */
-  static RaggedArc FromUnaryFunctionRagged(const RaggedArc &src,
+  static RaggedArc FromUnaryFunctionRagged(RaggedArc &src,
                                            const Ragged<Arc> &arcs,
                                            RaggedAny &arc_map,
                                            bool remove_filler = true);
@@ -170,6 +170,7 @@ struct __attribute__((__visibility__("default"))) RaggedArc {
   // Transfer current fsa to another device.
   RaggedArc To(torch::Device device) const;
   RaggedArc To(const std::string &device) const;
+  RaggedArc To(const ContextPtr &context) const;
 
   /* Return a 2-D int32 torch tensor.
      Each row represents an arc, where:
@@ -303,25 +304,25 @@ struct __attribute__((__visibility__("default"))) RaggedArc {
    * if `over_write` is true, attributes in current fsa with the same name as
    * attributes in src will be overworted by attributes in src.
    */
-  void SetTensorAttrs(const RaggedArc &src, torch::Tensor arc_map,
-                      bool over_write = true);
+  void CopyTensorAttrs(const RaggedArc &src, torch::Tensor arc_map,
+                       bool over_write = true);
 
   /* Propagate other attributes from src.
    *
    * if `over_write` is true, attributes in current fsa with the same name as
    * attributes in src will be overworted by attributes in src.
    */
-  void SetOtherAttrs(const RaggedArc &src, bool over_write = true);
+  void CopyOtherAttrs(const RaggedArc &src, bool over_write = true);
 
   /* Propagate ragged attributes from src.
    *
    * if `over_write` is true, attributes in current fsa with the same name as
    * attributes in src will be overworted by attributes in src.
    */
-  void SetRaggedTensorAttrs(const RaggedArc &src, torch::Tensor arc_map,
-                            bool over_write = true);
-  void SetRaggedTensorAttrs(const RaggedArc &src, RaggedAny &arc_map,
-                            bool over_write = true);
+  void CopyRaggedTensorAttrs(const RaggedArc &src, torch::Tensor arc_map,
+                             bool over_write = true);
+  void CopyRaggedTensorAttrs(const RaggedArc &src, RaggedAny &arc_map,
+                             bool over_write = true);
 
  public:  // we make these functions public since they are called in autograd
           // related functions

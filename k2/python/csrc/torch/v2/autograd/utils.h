@@ -28,6 +28,26 @@
 
 namespace k2 {
 
+class PhantomSetScoresFunction
+    : public torch::autograd::Function<PhantomSetScoresFunction> {
+ public:
+  static torch::Tensor forward(torch::autograd::AutogradContext *ctx,
+                               RaggedArc &fsa,
+                               torch::Tensor unused_in_fsa_scores) {
+    return fsa.Scores();
+  }
+
+  static torch::autograd::tensor_list backward(
+      torch::autograd::AutogradContext *ctx,
+      torch::autograd::tensor_list grad_outputs) {
+    torch::Tensor grad_output_tensor = grad_outputs[0];
+    return {
+        torch::Tensor(),     // fsa
+        grad_output_tensor,  // unused_in_fsa_scores
+    };
+  }
+};
+
 class PhantomIndexSelectScoresFunction
     : public torch::autograd::Function<PhantomIndexSelectScoresFunction> {
  public:

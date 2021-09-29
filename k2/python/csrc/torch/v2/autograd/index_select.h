@@ -21,6 +21,8 @@
 #ifndef K2_PYTHON_CSRC_TORCH_V2_AUTOGRAD_INDEX_SELECT_H_
 #define K2_PYTHON_CSRC_TORCH_V2_AUTOGRAD_INDEX_SELECT_H_
 
+#include <utility>
+
 #include "k2/python/csrc/torch/v2/ops.h"
 
 namespace k2 {
@@ -38,8 +40,8 @@ class IndexSelectFunction
       Caution:
         `index.dtype == torch.int32` and `index.ndim == 1`.
 
-      @param src The input tensor. Either 1-D or 2-D with dtype torch.int32 or
-                 torch.float32.
+      @param src The input tensor. Either 1-D or 2-D with dtype torch.int32,
+                 torch.int64, torch.float32 or torch.float64.
       @param index 1-D tensor of dtype torch.int32 containing the indexes.
                    If an entry is -1, the corresponding entry in the returned
                    value is 0. The elements of `index` should be in the range

@@ -74,19 +74,11 @@ void PybindRaggedArc(py::module &m) {
 
   fsa.def_property(
       "scores", [](RaggedArc &self) -> torch::Tensor { return self.Scores(); },
-      [](RaggedArc &self, torch::Tensor scores) {
-        self.Scores().copy_(scores);
-      });
+      [](RaggedArc &self, torch::Tensor scores) { self.SetScores(scores); });
 
   fsa.def_property_readonly(
       "properties", [](RaggedArc &self) -> int { return self.Properties(); });
 
-  fsa.def_property_readonly(
-      "grad", [](RaggedArc &self) -> torch::optional<torch::Tensor> {
-        if (!self.scores.defined()) return {};
-
-        return self.Scores().grad();
-      });
   fsa.def_property_readonly("shape", [](RaggedArc &self) -> py::tuple {
     if (self.fsa.NumAxes() == 2) {
       py::tuple ans(2);

@@ -23,7 +23,6 @@
 #ifndef K2_PYTHON_CSRC_K2_H_
 #define K2_PYTHON_CSRC_K2_H_
 
-#include "pybind11/embed.h"
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h"
 

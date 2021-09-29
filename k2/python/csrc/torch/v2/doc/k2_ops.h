@@ -24,13 +24,13 @@
 namespace k2 {
 
 static constexpr const char *kTensorIndexSelectDoc = R"doc(
-Index a tensor with a 1-D tensor of indexes, alone dimension 0.
+Index a tensor with a 1-D tensor of indexes, along dimension 0.
 
 Note:
   Autograd is supported.
 
 Caution:
-  The index MUST have the dtype equals to `torch.int32` and
+  The index MUST have the dtype equal to `torch.int32` and
   dimension equals to 1.
 
 >>> import torch
@@ -39,6 +39,7 @@ Caution:
 >>> index = torch.tensor([2, 4, -1, 6, 1], dtype=torch.int32)
 >>> k2.index_select(src, index)
 tensor([2, 4, 0, 6, 1])
+
 >>> k2.index_select(src, index, 100)
 tensor([  2,   4, 100,   6,   1])
 >>> src = torch.tensor([[0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7]])
@@ -51,11 +52,19 @@ tensor([[0, 3],
 >>> src = torch.tensor([0, 1, 2, 3, 4, 5], dtype=torch.float32, requires_grad=True)
 >>> index = torch.tensor([2, 4, -1, 1], dtype=torch.int32)
 >>> r = k2.index_select(src, index)
->>> print (r)
+>>> print(r)
 tensor([2., 4., 0., 1.], grad_fn=<IndexSelectFunction>>)
 >>> r.sum().backward()
->>> print (src.grad)
+>>> print(src.grad)
 tensor([0., 1., 1., 0., 1., 0.])
+>>> src = torch.tensor([0, 1, 2, 3, 4, 5], dtype=torch.float32, requires_grad=True)
+>>> index = torch.tensor([2, 4, -1, 1, 2, 4, 2, 2], dtype=torch.int32)
+>>> r = k2.index_select(src, index)
+>>> print(r)
+tensor([2., 4., 0., 1., 2., 4., 2., 2.], grad_fn=<IndexSelectFunction>>)
+>>> r.sum().backward()
+>>> print(src.grad)
+tensor([0., 1., 4., 0., 2., 0.])
 
 Args:
   src:
@@ -92,7 +101,8 @@ tensor([ 2, 10,  0,  0, -1], dtype=torch.int32)
 )doc";
 
 static constexpr const char *kTensorIndexAddDoc = R"doc(
-Add the `value` to `in_out` on the positons in `index`.
+Add the `value` to `in_out` on the positons in `index`, the `in_out` will be
+modified by `in_out[indx] += value`.
 
 Note:
   It has identical semantics as torch.Tensor.index_add_ except that it requires
@@ -114,12 +124,19 @@ Caution:
 >>> value = torch.tensor([0, 1, 2, 3, 4, 5], dtype=torch.int32)
 >>> in_out = torch.tensor([10, 11, 12, 13, 14, 15], dtype=torch.int32)
 >>> k2.index_add(index=index, value=value, in_out=in_out)
->>> print (in_out)
+>>> print(in_out)
 tensor([10, 12, 14, 13, 18, 15], dtype=torch.int32)
+>>> index = torch.tensor([0, 1, 1, -1, 4, 4], dtype=torch.int32)
+>>> value = torch.tensor([0, 1, 2, 3, 4, 5], dtype=torch.int32)
+>>> in_out = torch.tensor([10, 11, 12, 13, 14, 15], dtype=torch.int32)
+>>> k2.index_add(index=index, value=value, in_out=in_out)
+>>> print(in_out)
+tensor([10, 14, 12, 13, 23, 15], dtype=torch.int32)
+>>> index = torch.tensor([0, 1, 2, -1, 4, -1], dtype=torch.int32)
 >>> value = torch.tensor([[1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [1, 5]], dtype=torch.int32)
 >>> in_out = torch.tensor([[0, 10], [0, 11], [0, 12], [0, 13], [0, 14], [0, 15]], dtype=torch.int32)
 >>> k2.index_add(index=index, value=value, in_out=in_out)
->>> print (in_out)
+>>> print(in_out)
 tensor([[ 1, 10],
         [ 1, 12],
         [ 1, 14],

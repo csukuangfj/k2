@@ -41,7 +41,7 @@ void PybindK2Ops(py::module &m) {
   m.def(
       "index_select",
       [](torch::Tensor src, torch::Tensor index,
-         float default_value) -> torch::Tensor {
+         float default_value = 0) -> torch::Tensor {
         return IndexSelectFunction::apply(src, index, default_value);
       },
       py::arg("src"), py::arg("index"), py::arg("default_value") = 0,
