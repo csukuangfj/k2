@@ -86,10 +86,12 @@ RaggedArc RaggedArc::FromUnaryFunctionTensor(const RaggedArc &src,
 
 RaggedArc RaggedArc::FromUnaryFunctionRagged(RaggedArc &src,
                                              const Ragged<Arc> &arcs,
-                                             RaggedAny &arc_map,
+                                             Ragged<int32_t> &arc_map,
                                              bool remove_filler /*= true*/) {
   RaggedArc dest(arcs);
   dest.Properties();
+
+  RaggedAny arc_map_any = RaggedAny(arc_map.Generic());
 
   for (const auto &iter : src.tensor_attrs) {
     if (remove_filler && iter.second.scalar_type() == torch::kInt32) {
@@ -101,18 +103,18 @@ RaggedArc RaggedArc::FromUnaryFunctionRagged(RaggedArc &src,
         auto filler_scalar = torch::tensor(
             filler, torch::dtype(torch::kInt32).device(value.device()));
         value = torch::where(masking, value, filler_scalar);
-        auto new_value = arc_map.Index(value, py::int_(filler));
+        auto new_value = arc_map_any.Index(value, py::int_(filler));
         dest.SetAttr(iter.first, new_value.RemoveValuesEq(py::int_(filler)));
       }
     } else {
       K2_CHECK(iter.second.dtype() == torch::kFloat32 ||
                iter.second.dtype() == torch::kFloat64);
-      torch::Tensor new_value = arc_map.IndexAndSum(iter.second);
+      torch::Tensor new_value = arc_map_any.IndexAndSum(iter.second);
       dest.SetAttr(iter.first, new_value);
     }
   }
 
-  dest.CopyRaggedTensorAttrs(src, arc_map);
+  dest.CopyRaggedTensorAttrs(src, arc_map_any);
 
   dest.CopyOtherAttrs(src);
 

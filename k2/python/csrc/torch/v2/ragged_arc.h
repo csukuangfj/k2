@@ -126,7 +126,7 @@ struct __attribute__((__visibility__("default"))) RaggedArc {
    */
   static RaggedArc FromUnaryFunctionRagged(RaggedArc &src,
                                            const Ragged<Arc> &arcs,
-                                           RaggedAny &arc_map,
+                                           Ragged<int32_t> &arc_map,
                                            bool remove_filler = true);
 
   /**

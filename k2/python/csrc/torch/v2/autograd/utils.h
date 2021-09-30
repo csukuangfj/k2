@@ -85,10 +85,11 @@ class PhantomIndexAndSumScoresFunction
   static torch::Tensor forward(torch::autograd::AutogradContext *ctx,
                                RaggedArc &fsa,
                                torch::Tensor unused_in_fsa_scores,
-                               RaggedAny &arc_map) {
-    DeviceGuard guard(arc_map.any.Context());
-    torch::Tensor row_ids1 = ToTorch(arc_map.any.RowIds(1));
-    ctx->save_for_backward({unused_in_fsa_scores, row_ids1, arc_map.Data()});
+                               Ragged<int32_t> &arc_map) {
+    DeviceGuard guard(arc_map.Context());
+    torch::Tensor row_ids1 = ToTorch(arc_map.RowIds(1));
+    ctx->save_for_backward(
+        {unused_in_fsa_scores, row_ids1, ToTorch(arc_map.values)});
     return fsa.Scores();
   }
 

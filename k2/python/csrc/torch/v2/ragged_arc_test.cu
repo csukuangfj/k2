@@ -144,11 +144,9 @@ TEST(RaggedArcTest, FromUnaryFunctionRagged) {
                 py::cast(RaggedAny("[[10 20] [30 40 50] [60 70]]",
                                    py::cast(torch::kInt32), device)));
 
-    Ragged<int32_t> arc_map_raw;
+    Ragged<int32_t> arc_map;
     Ragged<Arc> arcs;
-    RemoveEpsilon(src.fsa, src.Properties(), &arcs, &arc_map_raw);
-
-    RaggedAny arc_map(arc_map_raw.Generic());
+    RemoveEpsilon(src.fsa, src.Properties(), &arcs, &arc_map);
 
     RaggedArc dest = RaggedArc::FromUnaryFunctionRagged(src, arcs, arc_map);
 
@@ -161,7 +159,8 @@ TEST(RaggedArcTest, FromUnaryFunctionRagged) {
     RaggedAny expected_arc_map =
         RaggedAny("[[1] [0 2] [2]]", py::cast(torch::kInt32), device);
 
-    EXPECT_EQ(arc_map.ToString(true), expected_arc_map.ToString(true));
+    EXPECT_EQ(RaggedAny(arc_map.Generic()).ToString(true),
+              expected_arc_map.ToString(true));
 
     RaggedAny expected_int_attr =
         RaggedAny("[[2] [1 3] [3]]", py::cast(torch::kInt32), device);
@@ -254,12 +253,9 @@ TEST(RaggedArcTest, FromUnaryFunctionRaggedWithEmptyList) {
                 py::cast(RaggedAny("[[10 20] [30 40 50] [60 70]]",
                                    py::cast(torch::kInt32), device)));
 
-    Ragged<int32_t> arc_map_raw;
+    Ragged<int32_t> arc_map;
     Ragged<Arc> arcs;
-    RemoveEpsilonAndAddSelfLoops(src.fsa, src.Properties(), &arcs,
-                                 &arc_map_raw);
-
-    RaggedAny arc_map(arc_map_raw.Generic());
+    RemoveEpsilonAndAddSelfLoops(src.fsa, src.Properties(), &arcs, &arc_map);
 
     RaggedArc dest = RaggedArc::FromUnaryFunctionRagged(src, arcs, arc_map);
 
@@ -272,7 +268,8 @@ TEST(RaggedArcTest, FromUnaryFunctionRaggedWithEmptyList) {
     RaggedAny expected_arc_map =
         RaggedAny("[[] [1] [0 2] [] [2]]", py::cast(torch::kInt32), device);
 
-    EXPECT_EQ(arc_map.ToString(true), expected_arc_map.ToString(true));
+    EXPECT_EQ(RaggedAny(arc_map.Generic()).ToString(true),
+              expected_arc_map.ToString(true));
 
     RaggedAny expected_int_attr =
         RaggedAny("[[] [2] [1 3] [] [3]]", py::cast(torch::kInt32), device);
