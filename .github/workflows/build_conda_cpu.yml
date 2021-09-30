@@ -89,7 +89,7 @@ jobs:
         run: |
           conda install -y -q anaconda-client
           conda install -y -q conda-build
-          conda install -y -q -c pytorch mkl=2021.2.0 pytorch=${{ matrix.torch }} cpuonly
+          conda install -y -q -c pytorch pytorch=${{ matrix.torch }} cpuonly
 
       - name: Display conda info
         shell: bash -l {0}
