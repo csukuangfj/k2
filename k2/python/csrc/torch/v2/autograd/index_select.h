@@ -35,7 +35,7 @@ class IndexSelectFunction
       using the entries in `index`.
 
       If the entry in `index` is -1, then the corresponding entry in the
-      returned tensor is 0.
+      returned tensor is `default_value`.
 
       Caution:
         `index.dtype == torch.int32` and `index.ndim == 1`.
@@ -44,7 +44,7 @@ class IndexSelectFunction
                  torch.int64, torch.float32 or torch.float64.
       @param index 1-D tensor of dtype torch.int32 containing the indexes.
                    If an entry is -1, the corresponding entry in the returned
-                   value is 0. The elements of `index` should be in the range
+                   value is `default_value`. The elements of `index` should be in the range
                    `[-1..src.shape[0]-1]`.
       @param default_value Used only when `src` is a 1-D tensor. It sets ans[i]
                            to default_value if index[i] is -1.
