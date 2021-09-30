@@ -62,6 +62,8 @@ RaggedArc::RaggedArc(
       all_attr_names.insert(name);
     }
   }
+  // Check the validation of this fsa, will trigger a fatal error if this fsa
+  // is not valid.
   Properties();
 
   // TODO: we also need to pass the name of extra_labels and ragged_labels.
@@ -72,6 +74,8 @@ RaggedArc RaggedArc::FromUnaryFunctionTensor(const RaggedArc &src,
                                              torch::Tensor arc_map) {
   RaggedArc dest(arcs);
 
+  // Check the validation of the fsa, will trigger a fatal error if the fsa
+  // is not valid.
   dest.Properties();
 
   dest.CopyTensorAttrs(src, arc_map);
@@ -89,6 +93,8 @@ RaggedArc RaggedArc::FromUnaryFunctionRagged(RaggedArc &src,
                                              Ragged<int32_t> &arc_map,
                                              bool remove_filler /*= true*/) {
   RaggedArc dest(arcs);
+  // Check the validation of the fsa, will trigger a fatal error if the fsa
+  // is not valid.
   dest.Properties();
 
   RaggedAny arc_map_any = RaggedAny(arc_map.Generic());
@@ -128,6 +134,8 @@ RaggedArc RaggedArc::FromBinaryFunctionTensor(const RaggedArc &a_src,
                                               torch::Tensor a_arc_map,
                                               torch::Tensor b_arc_map) {
   RaggedArc dest(arcs);
+  // Check the validation of the fsa, will trigger a fatal error if the fsa
+  // is not valid.
   dest.Properties();
   for (const auto &iter : a_src.tensor_attrs) {
     float filler = a_src.GetFiller(iter.first);

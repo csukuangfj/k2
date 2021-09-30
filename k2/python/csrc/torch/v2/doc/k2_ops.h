@@ -73,7 +73,7 @@ Args:
   index:
     1-D tensor of dtype `torch.int32` containing the indexes.
     If an entry is -1, the corresponding entry in the returned value
-    is 0. The elements of `index` should be in the range
+    is `default_value`. The elements of `index` should be in the range
     `[-1..src.shape[0]-1]`.
   default_value:
     Used only when `src` is a 1-D tensor. It sets ans[i] to default_value
@@ -86,7 +86,7 @@ Returns:
   `(index.shape[0], src.shape[1])`.
   Will satisfy `ans[i] == src[index[i]]` if `src.ndim == 1`,
   or `ans[i, j] == src[index[i], j]` if `src.ndim == 2`, except for
-  entries where `index[i] == -1` which will be zero.
+  entries where `index[i] == -1` which will be `default_value`.
 )doc";
 
 static constexpr const char *kSimpleRaggedIndexSelectDoc = R"doc(
