@@ -47,7 +47,7 @@ jobs:
         # anaconda does not support 3.9 as of 2021.05.08
         # python-version: [3.6, 3.7, 3.8, 3.9]
         # python-version: [3.6, 3.7, 3.8]
-        python-version: [3.7, 3.8, 3.6]
+        python-version: [3.7, 3.8]
         # from https://download.pytorch.org/whl/torch_stable.html
         #
         # PyTorch 1.9.0, 1.8.x, and 1.7.1 support 3.6, 3.7, 3.8, 3.9
@@ -103,7 +103,6 @@ jobs:
         env:
           K2_PYTHON_VERSION: ${{ matrix.python-version}}
           K2_TORCH_VERSION: ${{ matrix.torch }}
-          K2_CONDA_TOKEN: ${{ secrets.K2_CONDA_TOKEN}}
           K2_IS_GITHUB_ACTIONS: 1
           K2_IS_FOR_CONDA: 1
         run: |
