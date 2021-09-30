@@ -31,80 +31,65 @@
 
 namespace k2 {
 
-// note it supports only 1-D and 2-D tensors.
-// It has identical semantics as torch.Tensor.index_add_
-// except that it requires the dtype of the input index
-// to be torch.int32, whereas PyTorch expects the dtype to be
-// torch.int64. Furthermore, it ignores index[i] == -1.
+/* Add the `value` to `in_out` on the positons in `index`, the `in_out` will be
+modified by `in_out[indx] += value`.
+
+Note:
+  It has identical semantics as torch.Tensor.index_add_ except that it requires
+  the dtype of the input index to be torch.int32, whereas PyTorch expects the
+  dtype to be torch.int64. Furthermore, it ignores index[i] == -1.
+
+Caution:
+  It supports only 1-D and 2-D tensors.
+
+Caution:
+  `in_out` is modified **in-place**.
+
+  @param [in] index A 1-D **contiguous** tensor with dtype `torch.int32`.
+                    Must satisfy `-1 <= index[i] < in_out.shape[0]` and
+                    `index.shape[0] == value.shape[0]`.
+  @param [in] value A 1-D or a 2-D tensor. Supported dtypes are: `torch.int32`,
+                    `torch.float32`, and `torch.float64`.
+  @param [in,out] in_out Its `ndim` equals to `value.ndim`. If it is a
+                         2-D tensor, then `in_out.shape[1] == value.shape[1]`.
+                         Must satisfy `in_out.dtype == value.dtype`.
+                         Will be modified in place, the modified tensor
+                         satisfies `in_out[index[i]] += value[i]`
+                         if `index[i] != -1`
+  @return
+    None.
+ */
 void IndexAdd(torch::Tensor index, torch::Tensor value, torch::Tensor *in_out);
 
-/* Returns a 1-D tensor which indexes the src tensor using entries
-   from `index`.
+/* Index a tensor with a 1-D tensor of indexes, along dimension 0.
 
-   @param  [in]  src    A 1-D tensor.
-   @param  [in]  index  A 1-D tensor with dtype torch.int32.
-                        It has to satisfy:
-                            -1 <= index[i] < src.numel()
-                            for i in [0, index.numel())
-                        CAUTION: We require that index.is_contiguous()
-                                 is true.
-   @param [in] default_value  The value for ans[i] when index[i] is -1.
-   @return
-      Returns a 1-D contiguous tensor such that:
-          ans[i] = src[index[i]] if index[i] > 0
-          ans[i] = default_value if index[i] is -1
+Caution:
+  The index MUST have the dtype equal to `torch.int32` and
+  dimension equals to 1.
+
+  @param [in] src The input tensor. Either 1-D or 2-D with dtype `torch.int32`,
+                  `torch.int64`, `torch.float32`, or `torch.float64`.
+  @param [in] index 1-D tensor of dtype `torch.int32` containing the indexes.
+                    If an entry is -1, the corresponding entry in the returned
+                    value is 0. The elements of `index` should be in the range
+                    `[-1..src.shape[0]-1]`.
+  @param [in] default_value Used only when `src` is a 1-D tensor.
+                            It sets ans[i] to default_value if index[i] is -1.
+
+  @return
+    Return A tensor with shape ``(index.numel(), *src.shape[1:])`` and dtype
+    the same as `src`, e.g. if `src.ndim == 1`, `ans.shape` would be
+    `(index.shape[0],)`; if `src.ndim == 2`, `ans.shape` would be
+    `(index.shape[0], src.shape[1])`.
+    Will satisfy `ans[i] == src[index[i]]` if `src.ndim == 1`,
+    or `ans[i, j] == src[index[i], j]` if `src.ndim == 2`, except for
+    entries where `index[i] == -1` which will be zero.
  */
-template <typename T>
-torch::Tensor IndexSelect1D(torch::Tensor src, torch::Tensor index,
-                            T default_value);
-
-/* Returns a 2-D tensor which indexes the src tensor using entries
-   from `index`.
-
-   @param  [in]  src    A 2-D tensor. If it is non-contiguous, then it
-                        has to satisfy src.strides()[1] == 1.
-
-   @param  [in]  index  A 1-D tensor with dtype torch.int32.
-                        It has to satisfy:
-                            -1 <= index[i] < src.shape()[0]
-                            for i in [0, index.numel())
-                        CAUTION: We require that index.is_contiguous()
-                                 is true.
-   @return
-      Returns a 2-D contiguous tensor such that:
-          ans[i] = src[index[i]] if index[i] > 0
-          ans[i] = zero tensor whose numel() is src.shape()[1],
-                   if index[i] is -1
- */
-template <typename T>
-torch::Tensor IndexSelect2D(torch::Tensor src, torch::Tensor index);
-
 torch::Tensor IndexSelect(torch::Tensor src, torch::Tensor index,
                           double default_value = 0);
 
-/*
-  Returns a 1-D Tensor that is a result of indexing 1-D `src` with Ragged
-  array `indexes` whose NumAxes() is 2. ans.numel() will equal to
-  indexes.Dim0() as we suppose there is at most one non-zero element in `src`
-  for any indexes sub-list in `indexes`.
-
-     @param [in] src  Source tensor, to be indexed.
-     @param [in] indexes   Indexes to use whose NumAxes() == 2, for any
-                      sub-list `i` in `indexes`, we suppose there is at most
-                      one non-zero values in `src` and we'll set ans[i]
-                      with that non-zero value; if all values for
-                      sub-list `i` is zero or the sub-list is empty, we just
-                      set ans[i] == 0.
-     @return   Returns a Tensor with the same dtype as `src` and shape
-                     (indexes.Dim0()), i.e. a 1-D tensor with numel() equal
-                     to `indexes.Dim0()`.
-                     Noted the ans would be contiguous even though `src`
-                     is not contiguous.
+/* TODO: Add docs here.
  */
-template <typename T>
-torch::Tensor SimpleRaggedIndexSelect1D(torch::Tensor src,
-                                        Ragged<int32_t> &indexes);
-
 torch::Tensor SimpleRaggedIndexSelect(torch::Tensor src, RaggedAny &ragged);
 
 }  // namespace k2
