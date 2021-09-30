@@ -32,6 +32,7 @@ on:
   push:
     branches:
       - conda-cpu
+      - fix-macos
 
 env:
   K2_BUILD_TYPE: Release
@@ -42,10 +43,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-16.04, macos-10.15]
+        os: [macos-10.15]
         # anaconda does not support 3.9 as of 2021.05.08
         # python-version: [3.6, 3.7, 3.8, 3.9]
-        python-version: [3.6, 3.7, 3.8]
+        # python-version: [3.6, 3.7, 3.8]
+        python-version: [3.7, 3.8, 3.6]
         # from https://download.pytorch.org/whl/torch_stable.html
         #
         # PyTorch 1.9.0, 1.8.x, and 1.7.1 support 3.6, 3.7, 3.8, 3.9
@@ -87,7 +89,7 @@ jobs:
         run: |
           conda install -y -q anaconda-client
           conda install -y -q conda-build
-          conda install -y -q -c pytorch pytorch=${{ matrix.torch }} cpuonly
+          conda install -y -q -c pytorch mkl=2021.2.0 pytorch=${{ matrix.torch }} cpuonly
 
       - name: Display conda info
         shell: bash -l {0}
