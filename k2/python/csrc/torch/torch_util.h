@@ -28,7 +28,6 @@
 #include "k2/csrc/fsa.h"
 #include "k2/csrc/log.h"
 #include "k2/csrc/pytorch_context.h"
-#include "torch/extension.h"
 
 namespace k2 {
 
@@ -114,7 +113,7 @@ torch::Tensor ToTorch(Array1<T> &array) {
            input tensor.
  */
 template <typename T>
-Array1<T> FromTorch(torch::Tensor &tensor) {
+Array1<T> FromTorch(torch::Tensor tensor) {
   K2_CHECK_EQ(tensor.dim(), 1) << "Expected dim: 1. Given: " << tensor.dim();
   K2_CHECK_EQ(tensor.scalar_type(), ToScalarType<T>::value)
       << "Expected scalar type: " << ToScalarType<T>::value
@@ -159,12 +158,12 @@ torch::Tensor ToTorch(Array1<Arc> &array);
           the input tensor.
  */
 template <>
-Array1<Arc> FromTorch<Arc>(torch::Tensor &tensor);
+Array1<Arc> FromTorch<Arc>(torch::Tensor tensor);
 
 struct Array2Tag {};
 
 template <typename T>
-Array2<T> FromTorch(torch::Tensor &tensor, Array2Tag) {
+Array2<T> FromTorch(torch::Tensor tensor, Array2Tag) {
   K2_CHECK_EQ(tensor.dim(), 2) << "Expected dim: 2. Given: " << tensor.dim();
   K2_CHECK_EQ(tensor.scalar_type(), ToScalarType<T>::value)
       << "Expected scalar type: " << ToScalarType<T>::value
@@ -200,7 +199,7 @@ torch::Tensor ToTorch(Array2<T> &array) {
 
 struct TensorTag {};
 
-Tensor FromTorch(torch::Tensor &tensor, TensorTag);
+Tensor FromTorch(torch::Tensor tensor, TensorTag);
 torch::Tensor ToTorch(Tensor &tensor);
 
 /* Transfer an object to a specific device.
@@ -244,15 +243,18 @@ PyClass To(PyClass &pyclass, py::object device) {
   return pyclass.To(GetCudaContext(device_index));
 }
 
-/* Create a k2 context from a torch tensor.
+/** Create a k2 context from a torch device.
 
-   @param [in] tensor  A torch::Tensor. It has to be
-                       either on CPU or on CUDA GPU.
+   @param [in] device   It must be either a CPU or a GPU.
 
-   @return Return either a CpuContext or a CudaContext
-           depending on where the given tensor resides.
+   @return Return either a CPU context or a CUDA context
+           depending on the given device.
  */
-ContextPtr GetContext(torch::Tensor tensor);
+ContextPtr GetContext(torch::Device device);
+
+inline ContextPtr GetContext(torch::Tensor tensor) {
+  return GetContext(tensor.device());
+}
 
 }  // namespace k2
 

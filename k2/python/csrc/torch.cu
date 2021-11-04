@@ -34,6 +34,7 @@
 #include "k2/python/csrc/torch/nbest.h"
 #include "k2/python/csrc/torch/ragged.h"
 #include "k2/python/csrc/torch/ragged_ops.h"
+#include "k2/python/csrc/torch/v2/k2.h"
 
 void PybindTorch(py::module &m) {
   PybindArc(m);
@@ -45,8 +46,8 @@ void PybindTorch(py::module &m) {
   PybindNbest(m);
   PybindRagged(m);
   PybindRaggedOps(m);
-  // TODO: Move Pybind* to the namespace k2
-  k2::PybindRaggedAny(m);
+
+  k2::PybindV2(m);
 }
 
 #else

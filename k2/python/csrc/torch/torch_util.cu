@@ -21,7 +21,6 @@
 #include <vector>
 
 #include "k2/python/csrc/torch/torch_util.h"
-#include "torch/extension.h"
 
 namespace k2 {
 
@@ -106,7 +105,7 @@ torch::Tensor ToTorch(Array1<Arc> &array) {
 }
 
 template <>
-Array1<Arc> FromTorch<Arc>(torch::Tensor &tensor) {
+Array1<Arc> FromTorch<Arc>(torch::Tensor tensor) {
   K2_CHECK_EQ(tensor.dim(), 2) << "Expected dim: 2. Given: " << tensor.dim();
   K2_CHECK_EQ(tensor.scalar_type(), ToScalarType<int32_t>::value)
       << "Expected scalar type: " << ToScalarType<int32_t>::value
@@ -125,7 +124,7 @@ Array1<Arc> FromTorch<Arc>(torch::Tensor &tensor) {
   return ans;
 }
 
-Tensor FromTorch(torch::Tensor &tensor, TensorTag) {
+Tensor FromTorch(torch::Tensor tensor, TensorTag) {
   Dtype dtype = ScalarTypeToDtype(tensor.scalar_type());
   torch::IntArrayRef sizes = tensor.sizes();
   torch::IntArrayRef strides = tensor.strides();
@@ -155,11 +154,11 @@ torch::Tensor ToTorch(Tensor &tensor) {
       [saved_region = tensor.GetRegion()](void *) {}, options);
 }
 
-ContextPtr GetContext(torch::Tensor tensor) {
-  if (tensor.device().type() == torch::kCPU) return GetCpuContext();
+ContextPtr GetContext(torch::Device device) {
+  if (device.type() == torch::kCPU) return GetCpuContext();
 
-  K2_CHECK(tensor.is_cuda());
-  return GetCudaContext(tensor.device().index());
+  K2_CHECK_EQ(device.type(), torch::kCUDA);
+  return GetCudaContext(device.index());
 }
 
 }  // namespace k2

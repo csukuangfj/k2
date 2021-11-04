@@ -422,7 +422,16 @@ class _IntersectDensePrunedFunction(torch.autograd.Function):
         out_fsa[0] = Fsa(ragged_arc)
 
         for name, a_value in a_fsas.named_tensor_attr(include_scores=False):
-            value = k2.index(a_value, arc_map_a)
+            if isinstance(a_value, torch.Tensor):
+                value = _k2.index_select(a_value, arc_map_a)
+            else:
+                assert isinstance(a_value, k2.RaggedTensor)
+                # Only integer types ragged attributes are supported now
+                assert a_value.dtype == torch.int32
+                value, _ = a_value.index(arc_map_a,
+                                         axis=0,
+                                         need_value_indexes=False)
+
             setattr(out_fsa[0], name, value)
 
         for name, a_value in a_fsas.named_non_tensor_attr():
@@ -498,6 +507,8 @@ class _IntersectDenseFunction(torch.autograd.Function):
                 b_fsas: DenseFsaVec,
                 out_fsa: List[Fsa],
                 output_beam: float,
+                max_states: int,
+                max_arcs: int,
                 unused_scores_a: torch.Tensor,
                 unused_scores_b: torch.Tensor,
                 a_to_b_map: Optional[torch.Tensor] = None,
@@ -551,12 +562,22 @@ class _IntersectDenseFunction(torch.autograd.Function):
             a_fsas=a_fsas.arcs,
             b_fsas=b_fsas.dense_fsa_vec,
             a_to_b_map=a_to_b_map,
-            output_beam=output_beam)
+            output_beam=output_beam,
+            max_states=max_states,
+            max_arcs=max_arcs)
 
         out_fsa[0] = Fsa(ragged_arc)
 
         for name, a_value in a_fsas.named_tensor_attr(include_scores=False):
-            value = k2.index(a_value, arc_map_a)
+            if isinstance(a_value, torch.Tensor):
+                value = _k2.index_select(a_value, arc_map_a)
+            else:
+                assert isinstance(a_value, k2.RaggedTensor)
+                assert a_value.dtype == torch.int32
+                value, _ = a_value.index(arc_map_a,
+                                         axis=0,
+                                         need_value_indexes=False)
+
             setattr(out_fsa[0], name, value)
 
         for name, a_value in a_fsas.named_non_tensor_attr():
@@ -614,59 +635,14 @@ class _IntersectDenseFunction(torch.autograd.Function):
             None,  # b_fsas
             None,  # out_fsa
             None,  # output_beam
+            None,  # max_states
+            None,  # max_arcs
             grad_a,  # unused_scores_a
             grad_b,  # unused_scores_b
             None,  # a_to_b_map
             None,  # seqframe_idx_name
             None  # frame_idx_name
         )
-
-
-class _UnionFunction(torch.autograd.Function):
-
-    @staticmethod
-    def forward(ctx, fsas: Fsa, out_fsa: List[Fsa],
-                unused_fsas_scores: torch.Tensor) -> torch.Tensor:
-        '''Compute the union of all fsas in a FsaVec.
-
-        Args:
-          fsas:
-            The input FsaVec. Caution: We require that each fsa in the FsaVec
-            is non-empty (i.e., with at least two states).
-          out_fsa:
-            A list containing one entry. Since this function can only return
-            values of type `torch.Tensor`, we return the union result in the
-            list.
-          unused_fsas_scores:
-            It is the same as `fsas.scores`, whose sole purpose is for autograd.
-            It is not used in this function.
-        '''
-        need_arc_map = True
-        ragged_arc, arc_map = _k2.union(fsas.arcs, need_arc_map)
-        out_fsa[0] = Fsa(ragged_arc)
-
-        for name, value in fsas.named_tensor_attr(include_scores=False):
-            value = k2.index(value, arc_map)
-            setattr(out_fsa[0], name, value)
-
-        for name, value in fsas.named_non_tensor_attr():
-            setattr(out_fsa[0], name, value)
-        ctx.arc_map = arc_map
-        ctx.save_for_backward(unused_fsas_scores)
-
-        return out_fsa[0].scores  # the return value will be discarded
-
-    @staticmethod
-    def backward(ctx, out_fsa_grad: torch.Tensor
-                ) -> Tuple[None, None, torch.Tensor]:  # noqa
-        arc_map = ctx.arc_map
-        fsas_scores, = ctx.saved_tensors
-        ans = torch.zeros(fsas_scores.size(0),
-                          dtype=torch.float32,
-                          device=fsas_scores.device,
-                          requires_grad=False)
-        _k2.index_add(arc_map, out_fsa_grad, ans)
-        return None, None, ans
 
 
 def intersect_dense_pruned(a_fsas: Fsa,
@@ -749,6 +725,8 @@ def intersect_dense_pruned(a_fsas: Fsa,
 def intersect_dense(a_fsas: Fsa,
                     b_fsas: DenseFsaVec,
                     output_beam: float,
+                    max_states: int = 15000000,
+                    max_arcs: int = 1073741824,
                     a_to_b_map: Optional[torch.Tensor] = None,
                     seqframe_idx_name: Optional[str] = None,
                     frame_idx_name: Optional[str] = None) -> Fsa:
@@ -766,8 +744,14 @@ def intersect_dense(a_fsas: Fsa,
       b_fsas:
         Input FSAs that correspond to neural network output.
       output_beam:
-         Beam to prune output, similar to lattice-beam in Kaldi.  Relative
-         to best path of output.
+        Beam to prune output, similar to lattice-beam in Kaldi.  Relative
+        to best path of output.
+      max_states:
+        The max number of states to prune the output, mainly to avoid
+        out-of-memory and numerical overflow, default 15,000,000.
+      max_arcs:
+        The max number of arcs to prune the output, mainly to avoid
+        out-of-memory and numerical overflow, default 1073741824(2^30).
       a_to_b_map:
          Maps from FSA-index in a to FSA-index in b to use for it.
          If None, then we expect the number of FSAs in a_fsas to equal
@@ -808,26 +792,7 @@ def intersect_dense(a_fsas: Fsa,
     # the following return value is discarded since it is already contained
     # in `out_fsa[0].scores`
     _IntersectDenseFunction.apply(a_fsas, b_fsas, out_fsa, output_beam,
+                                  max_states, max_arcs,
                                   a_fsas.scores, b_fsas.scores, a_to_b_map,
                                   seqframe_idx_name, frame_idx_name)
-    return out_fsa[0]
-
-
-def union(fsas: Fsa) -> Fsa:
-    '''Compute the union of a FsaVec.
-
-    Caution:
-      We require that every fsa in fsas is non-empty, i.e.,
-      contains at least two states
-
-    Args:
-      fsas:
-        A FsaVec. That is, len(fsas.shape) == 3.
-
-    Returns:
-      A single Fsa that is the union of the input fsas.
-    '''
-
-    out_fsa = [0]  # as a placeholder
-    _UnionFunction.apply(fsas, out_fsa, fsas.scores)
     return out_fsa[0]
