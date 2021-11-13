@@ -70,6 +70,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install anaconda
+        shell: bash -l {0}
+        run: |
+          wget https://repo.anaconda.com/archive/Anaconda3-2021.05-Linux-x86_64.sh
+          chmod +x Anaconda3-2021.05-Linux-x86_64.sh
+          ./Anaconda3-2021.05-Linux-x86_64.sh -b
+
       - uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
