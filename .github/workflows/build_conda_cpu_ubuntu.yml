@@ -75,15 +75,26 @@ jobs:
         run: |
           apt-get update
           apt-get install -y wget
-          wget https://repo.anaconda.com/archive/Anaconda3-2021.05-Linux-x86_64.sh
+          wget -q https://repo.anaconda.com/archive/Anaconda3-2021.05-Linux-x86_64.sh
           chmod +x Anaconda3-2021.05-Linux-x86_64.sh
           ./Anaconda3-2021.05-Linux-x86_64.sh -b
+      - name: Setup conda
+        shell: bash -l {0}
+        run: |
+          echo "$HOME/anaconda3/bin" >> $GITHUB_PATH
+          echo "path: $GITHUB_PATH"
 
-      - uses: conda-incubator/setup-miniconda@v2
-        with:
-          auto-update-conda: true
-          python-version: ${{ matrix.python-version }}
-          activate-environment: k2
+          ls ~/anaconda3/etc/profile.d/conda.sh
+          source ~/anaconda3/etc/profile.d/conda.sh
+          conda create --name k2 python=${{ matrix.python-version }}
+          conda init bash
+          conda activate k2
+
+      # - uses: conda-incubator/setup-miniconda@v2
+      #   with:
+      #     auto-update-conda: true
+      #     python-version: ${{ matrix.python-version }}
+      #     activate-environment: k2
 
       - name: Display Python version
         shell: bash -l {0}
