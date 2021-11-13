@@ -88,17 +88,19 @@ jobs:
           source ~/anaconda3/etc/profile.d/conda.sh
           conda create --name k2 python=${{ matrix.python-version }}
           conda init bash
-          conda activate k2
+          conda activate k22
+          which conda
 
-      # - uses: conda-incubator/setup-miniconda@v2
-      #   with:
-      #     auto-update-conda: true
-      #     python-version: ${{ matrix.python-version }}
-      #     activate-environment: k2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          python-version: ${{ matrix.python-version }}
+          activate-environment: k2
 
       - name: Display Python version
         shell: bash -l {0}
         run: |
+          which conda
           python3 -c "import sys; print(sys.version)"
           which python3
 
