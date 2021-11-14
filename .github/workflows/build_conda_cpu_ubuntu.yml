@@ -96,7 +96,7 @@ jobs:
           installer-url: https://repo.anaconda.com/miniconda/Miniconda3-py38_4.10.3-Linux-x86_64.sh
           auto-update-conda: true
           python-version: ${{ matrix.python-version }}
-          activate-environment: k2
+          activate-environment: k3
 
       - name: Display Python version
         shell: bash -l {0}
@@ -109,7 +109,7 @@ jobs:
         shell: bash -l {0}
         run: |
           conda install -y -q anaconda-client
-          conda install -y -q conda-build==2.0.1
+          conda install -y -q conda-build
           conda install -y -q -c pytorch pytorch=${{ matrix.torch }} cpuonly
 
       - name: Display conda info
