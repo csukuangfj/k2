@@ -109,7 +109,7 @@ jobs:
         shell: bash -l {0}
         run: |
           conda install -y -q anaconda-client
-          conda install -y -q conda-build
+          conda install -y -q conda-build==2.0.1
           conda install -y -q -c pytorch pytorch=${{ matrix.torch }} cpuonly
 
       - name: Display conda info
