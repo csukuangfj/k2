@@ -22,7 +22,9 @@ on:
   push:
     branches:
       - conda-cuda
-      - fix-ci
+  pull_request:
+    branches:
+      - master
 
 env:
   K2_BUILD_TYPE: Release

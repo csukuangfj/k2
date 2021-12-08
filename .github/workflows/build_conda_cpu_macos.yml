@@ -32,7 +32,9 @@ on:
   push:
     branches:
       - conda-cpu
-      # - fix-ci
+  pull_request:
+    branches:
+      - master
 
 env:
   K2_BUILD_TYPE: Release
