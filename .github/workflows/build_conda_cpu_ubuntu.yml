@@ -88,16 +88,25 @@ jobs:
 
           ls ~/anaconda3/etc/profile.d/conda.sh
           source ~/anaconda3/etc/profile.d/conda.sh
-          cat ~/anaconda3/etc/profile.d/conda.sh
+          # cat ~/anaconda3/etc/profile.d/conda.sh
 
           conda install -y python=${{ matrix.python-version }}
-          ls -lh /github/home/anaconda3/bin
+          # ls -lh /github/home/anaconda3/bin
           export PATH=/github/home/anaconda3/bin:$PATH
           echo "PATH: ${PATH}"
           python --version
           python3 --version
           conda env list
           conda info
+          conda install -y -q -c pytorch pytorch=${{ matrix.torch }} cpuonly
+          export K2_PYTHON_VERSION=${{ matrix.python-version}}
+          export K2_TORCH_VERSION=${{ matrix.torch }}
+          # export K2_CONDA_TOKEN=${{ secrets.K2_CONDA_TOKEN}}
+          export K2_IS_GITHUB_ACTIONS=1
+          export K2_IS_FOR_CONDA=1
+          export K2_BUILD_TYPE=$K2_BUILD_TYPE
+          ./scripts/build_conda_cpu.sh
+          find /github/home/anaconda3 -name conda-bld
 
       # - uses: conda-incubator/setup-miniconda@v2
       #   with:
