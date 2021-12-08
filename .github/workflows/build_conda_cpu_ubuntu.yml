@@ -89,7 +89,6 @@ jobs:
           ls ~/anaconda3/etc/profile.d/conda.sh
           source ~/anaconda3/etc/profile.d/conda.sh
 
-          python3 --version
           conda install python=${{ matrix.python-version }}
           which conda
           python3 --version
