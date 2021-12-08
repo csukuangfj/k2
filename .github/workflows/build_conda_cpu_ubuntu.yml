@@ -154,12 +154,14 @@ jobs:
       #     export K2_BUILD_TYPE=$K2_BUILD_TYPE
       #     ./scripts/build_conda_cpu.sh
 
-      # - name: Display generated files
-      #   run: |
-      #     ls -lh /usr/share/miniconda/envs/k2/conda-bld/linux-64
-      #
-      # - name: Upload generated files
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: torch-${{ matrix.torch }}-python-${{ matrix.python-version }}-${{ matrix.os }}
-      #     path: /usr/share/miniconda/envs/k2/conda-bld/linux-64/*.tar.bz2
+      - name: Display generated files
+        run: |
+          ls -lh /github/home/anaconda3/conda-bld/linux-64/k2-*.tar.bz2
+
+      - name: Upload generated files
+        uses: actions/upload-artifact@v2
+        with:
+          name: torch-${{ matrix.torch }}-python-${{ matrix.python-version }}-${{ matrix.os }}
+          path: /usr/share/miniconda/envs/k2/conda-bld/linux-64/*.tar.bz2
+          # path: /github/home/anaconda3/conda-bld/linux-64/k2-1.10.dev20211208-cpu_py3.8_torch1.7.1.tar.bz2
+          path: /github/home/anaconda3/conda-bld/linux-64/k2-*.tar.bz2
