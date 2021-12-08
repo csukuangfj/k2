@@ -93,7 +93,8 @@ jobs:
 
           conda install -y python=${{ matrix.python-version }}
           which conda
-          find /github/home/anaconda3 -exec ls -lh {} +
+          find /github/home/anaconda3/bin -exec ls -lh {} +
+          python --version
 
       # - uses: conda-incubator/setup-miniconda@v2
       #   with:
