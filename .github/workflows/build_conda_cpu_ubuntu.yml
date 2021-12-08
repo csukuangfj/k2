@@ -89,12 +89,15 @@ jobs:
           ls ~/anaconda3/etc/profile.d/conda.sh
           source ~/anaconda3/etc/profile.d/conda.sh
           cat ~/anaconda3/etc/profile.d/conda.sh
-          conda init bash
 
           conda install -y python=${{ matrix.python-version }}
-          which conda
-          find /github/home/anaconda3/bin -exec ls -lh {} +
+          ls -lh /github/home/anaconda3/bin
+          export PATH=/github/home/anaconda3/bin:$PATH
+          echo "PATH: ${PATH}"
           python --version
+          python3 --version
+          conda env list
+          conda info
 
       # - uses: conda-incubator/setup-miniconda@v2
       #   with:
