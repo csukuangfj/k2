@@ -98,7 +98,3 @@ else
   echo "Auto upload to anaconda.org is enabled"
   conda build --output --output-folder /tmp/build-k2 --no-test -c pytorch --token $K2_CONDA_TOKEN ./scripts/conda-cpu/k2
 fi
-
-echo "ls -lh $CONDA_PREFIX"
-ls -lh $CONDA_PREFIX/*/*/*
-find $CONDA_PREFIX -exec ls -lh {} +

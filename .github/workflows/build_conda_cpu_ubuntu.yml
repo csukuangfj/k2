@@ -105,8 +105,11 @@ jobs:
           export K2_IS_GITHUB_ACTIONS=1
           export K2_IS_FOR_CONDA=1
           export K2_BUILD_TYPE=$K2_BUILD_TYPE
+          mkdir -p /github/home/.conda/pkgs
+
           ./scripts/build_conda_cpu.sh
-          find /github/home/anaconda3 -name conda-bld
+          # find /github/home/anaconda3 -name conda-bld
+          ls /github/home/anaconda3/conda-bld
 
       # - uses: conda-incubator/setup-miniconda@v2
       #   with:
