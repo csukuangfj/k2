@@ -89,8 +89,8 @@ mkdir /tmp/build-k2
 
 if [ -z $K2_CONDA_TOKEN ]; then
   echo "Auto upload to anaconda.org is disabled since K2_CONDA_TOKEN is not set"
-  conda build --output-folder /tmp/build-k2 --no-test --no-anaconda-upload -c pytorch ./scripts/conda-cpu/k2
+  conda build --output --croot /tmp/build-k2 --no-test --no-anaconda-upload -c pytorch ./scripts/conda-cpu/k2
 else
   echo "Auto upload to anaconda.org is enabled"
-  conda build --output-folder /tmp/build-k2 --no-test -c pytorch --token $K2_CONDA_TOKEN ./scripts/conda-cpu/k2
+  conda build --output --croot /tmp/build-k2 --no-test -c pytorch --token $K2_CONDA_TOKEN ./scripts/conda-cpu/k2
 fi
