@@ -88,10 +88,11 @@ jobs:
 
           ls ~/anaconda3/etc/profile.d/conda.sh
           source ~/anaconda3/etc/profile.d/conda.sh
-          conda create --name k22 python=${{ matrix.python-version }}
-          conda init bash
-          conda activate k22
+
+          python3 --version
+          conda install python=${{ matrix.python-version }}
           which conda
+          python3 --version
 
       # - uses: conda-incubator/setup-miniconda@v2
       #   with:
