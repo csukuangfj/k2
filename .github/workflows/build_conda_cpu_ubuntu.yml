@@ -88,12 +88,12 @@ jobs:
 
           ls ~/anaconda3/etc/profile.d/conda.sh
           source ~/anaconda3/etc/profile.d/conda.sh
+          cat ~/anaconda3/etc/profile.d/conda.sh
           conda init bash
 
           conda install -y python=${{ matrix.python-version }}
           which conda
-          echo "CONDA_PREFIX: $CONDA_PREFIX"
-          find $CONDA_PREFIX -exec ls -lh {} +
+          find /github/home/anaconda3 -exec ls -lh {} +
 
       # - uses: conda-incubator/setup-miniconda@v2
       #   with:
