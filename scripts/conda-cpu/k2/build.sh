@@ -26,9 +26,7 @@ python3 --version
 
 echo "CC is: $CC"
 echo "GCC is: $GCC"
-echo "which nvcc: $(which nvcc)"
 echo "gcc version: $($CC --version)"
-echo "nvcc version: $(nvcc --version)"
 
 export K2_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=${K2_BUILD_TYPE} -DK2_WITH_CUDA=OFF"
 export K2_MAKE_ARGS="-j2"
