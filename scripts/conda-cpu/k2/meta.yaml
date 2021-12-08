@@ -15,9 +15,7 @@ build:
     - K2_BUILD_TYPE
     - K2_BUILD_VERSION
     - K2_IS_FOR_CONDA
-    - K2_CMAKE_ARGS
-    - K2_MAKE_ARGS
-  script: {{ PYTHON }} setup.py install --single-version-externally-managed --record=record.txt
+
   features:
     - cpuonly # [not osx]
 
