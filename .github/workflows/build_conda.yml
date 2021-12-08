@@ -114,7 +114,7 @@ jobs:
         shell: bash -l {0}
         run: |
           apt-get update
-          apt-get install -y wget build-essential git-all lsb-release curl
+          apt-get install -y wget build-essential git-all lsb-release curl sudo
           wget -q https://repo.anaconda.com/archive/Anaconda3-2021.05-Linux-x86_64.sh
           chmod +x Anaconda3-2021.05-Linux-x86_64.sh
           ./Anaconda3-2021.05-Linux-x86_64.sh -b
