@@ -98,6 +98,8 @@ jobs:
           python3 --version
           conda env list
           conda info
+          conda activate base
+          conda info
           conda install -y -q -c pytorch pytorch=${{ matrix.torch }} cpuonly
           export K2_PYTHON_VERSION=${{ matrix.python-version}}
           export K2_TORCH_VERSION=${{ matrix.torch }}
