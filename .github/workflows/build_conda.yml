@@ -22,7 +22,7 @@ on:
   push:
     branches:
       - conda-cuda
-      - fix-ci
+      # - fix-ci
 
 env:
   K2_BUILD_TYPE: Release

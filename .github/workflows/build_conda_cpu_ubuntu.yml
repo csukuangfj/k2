@@ -72,51 +72,57 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install anaconda
+      - name: Install miniconda
         shell: bash -l {0}
         run: |
           apt-get update
           apt-get install -y wget build-essential git-all lsb-release
-          wget -q https://repo.anaconda.com/archive/Anaconda3-2021.05-Linux-x86_64.sh
-          chmod +x Anaconda3-2021.05-Linux-x86_64.sh
-          ./Anaconda3-2021.05-Linux-x86_64.sh -b
-      - name: Build k2
-        shell: bash -l {0}
-        run: |
-          echo "$HOME/anaconda3/bin" >> $GITHUB_PATH
-          echo "path: $GITHUB_PATH"
 
-          source ~/anaconda3/etc/profile.d/conda.sh
+          # wget -q https://repo.anaconda.com/archive/Anaconda3-2021.05-Linux-x86_64.sh
+          # chmod +x Anaconda3-2021.05-Linux-x86_64.sh
+          # ./Anaconda3-2021.05-Linux-x86_64.sh -b
 
-          conda install -y python=${{ matrix.python-version }} cmake=3.18
-          export PATH=/github/home/anaconda3/bin:$PATH
+          wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+          chmod +x Miniconda3-latest-Linux-x86_64.sh
+          ./Miniconda3-latest-Linux-x86_64.sh
 
-          python --version
-          python3 --version
-          conda env list
-          conda info
-          conda activate base
-          conda info
-
-          conda install -y -q -c pytorch pytorch=${{ matrix.torch }} cpuonly
-          export K2_PYTHON_VERSION=${{ matrix.python-version}}
-          export K2_TORCH_VERSION=${{ matrix.torch }}
-          export K2_CONDA_TOKEN=${{ secrets.K2_CONDA_TOKEN}}
-          export K2_IS_GITHUB_ACTIONS=1
-          export K2_IS_FOR_CONDA=1
-          export K2_BUILD_TYPE=$K2_BUILD_TYPE
-
-          mkdir -p /github/home/.conda/pkgs
-
-          ./scripts/build_conda_cpu.sh
-
-      - name: Display generated files
-        run: |
-          ls -lh /github/home/anaconda3/conda-bld/linux-64/k2-*.tar.bz2
-
-      - name: Upload generated files
-        uses: actions/upload-artifact@v2
-        with:
-          name: torch-${{ matrix.torch }}-python-${{ matrix.python-version }}-ubuntu-16.04
-          # path: /github/home/anaconda3/conda-bld/linux-64/k2-1.10.dev20211208-cpu_py3.8_torch1.7.1.tar.bz2
-          path: /github/home/anaconda3/conda-bld/linux-64/k2-*.tar.bz2
+      # - name: Build k2
+      #   shell: bash -l {0}
+      #   run: |
+      #     echo "$HOME/anaconda3/bin" >> $GITHUB_PATH
+      #     echo "path: $GITHUB_PATH"
+      #
+      #     source ~/anaconda3/etc/profile.d/conda.sh
+      #
+      #     conda install -y python=${{ matrix.python-version }} cmake=3.18
+      #     export PATH=/github/home/anaconda3/bin:$PATH
+      #
+      #     python --version
+      #     python3 --version
+      #     conda env list
+      #     conda info
+      #     conda activate base
+      #     conda info
+      #
+      #     conda install -y -q -c pytorch pytorch=${{ matrix.torch }} cpuonly
+      #     export K2_PYTHON_VERSION=${{ matrix.python-version}}
+      #     export K2_TORCH_VERSION=${{ matrix.torch }}
+      #     export K2_CONDA_TOKEN=${{ secrets.K2_CONDA_TOKEN}}
+      #     export K2_IS_GITHUB_ACTIONS=1
+      #     export K2_IS_FOR_CONDA=1
+      #     export K2_BUILD_TYPE=$K2_BUILD_TYPE
+      #
+      #     mkdir -p /github/home/.conda/pkgs
+      #
+      #     ./scripts/build_conda_cpu.sh
+      #
+      # - name: Display generated files
+      #   run: |
+      #     ls -lh /github/home/anaconda3/conda-bld/linux-64/k2-*.tar.bz2
+      #
+      # - name: Upload generated files
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: torch-${{ matrix.torch }}-python-${{ matrix.python-version }}-ubuntu-16.04
+      #     # path: /github/home/anaconda3/conda-bld/linux-64/k2-1.10.dev20211208-cpu_py3.8_torch1.7.1.tar.bz2
+      #     path: /github/home/anaconda3/conda-bld/linux-64/k2-*.tar.bz2
