@@ -122,9 +122,10 @@ jobs:
       - name: Install git-lfs
         shell: bash -l {0}
         run: |
-          # apt-get install -y git-lfs # does not work on Ubuntu 16.04
           # see https://packagecloud.io/github/git-lfs/install
           curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
+          apt-get update
+          apt-get install -y git-lfs
 
       - name: Install CUDA Toolkit ${{ matrix.cuda }}
         shell: bash -l {0}

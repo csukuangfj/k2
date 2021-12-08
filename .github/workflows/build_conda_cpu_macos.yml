@@ -107,6 +107,7 @@ jobs:
           K2_IS_FOR_CONDA: 1
         run: |
           export K2_BUILD_TYPE=$K2_BUILD_TYPE
+          export DYLD_LIBRARY_PATH=/usr/local/miniconda/envs/k2/lib:$DYLD_LIBRARY_PATH
           ./scripts/build_conda_cpu.sh
 
       - name: Display generated files
