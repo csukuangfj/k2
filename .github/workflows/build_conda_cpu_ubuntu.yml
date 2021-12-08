@@ -38,6 +38,7 @@ on:
 
 env:
   K2_BUILD_TYPE: Release
+  K2_CONDA_TOKEN: ${{ secrets.K2_CONDA_TOKEN }}
 
 jobs:
   build_conda_cpu_ubuntu:
@@ -86,6 +87,11 @@ jobs:
 
       - name: Build k2
         shell: bash -l {0}
+        env:
+          K2_PYTHON_VERSION: ${{ matrix.python-version}}
+          K2_TORCH_VERSION: ${{ matrix.torch }}
+          K2_IS_GITHUB_ACTIONS: 1
+          K2_IS_FOR_CONDA: 1
         run: |
           echo "$HOME/miniconda3/bin" >> $GITHUB_PATH
           echo "path: $GITHUB_PATH"
@@ -105,11 +111,6 @@ jobs:
           conda install -y -q -c pytorch pytorch=${{ matrix.torch }} cpuonly
           conda install -y -q anaconda-client conda-build
 
-          export K2_PYTHON_VERSION=${{ matrix.python-version}}
-          export K2_TORCH_VERSION=${{ matrix.torch }}
-          export K2_CONDA_TOKEN=${{ secrets.K2_CONDA_TOKEN}}
-          export K2_IS_GITHUB_ACTIONS=1
-          export K2_IS_FOR_CONDA=1
           export K2_BUILD_TYPE=$K2_BUILD_TYPE
 
           mkdir -p /github/home/.conda/pkgs
