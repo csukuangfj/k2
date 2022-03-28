@@ -223,7 +223,7 @@ RaggedShape RnntDecodingStreams::ExpandArcs() {
         const int32_t *graph_row_split1_data = graph_row_splits1_ptr_data[idx0];
         // plus one for the implicit epsilon self-loop
         num_arcs_data[idx012] = graph_row_split1_data[graph_state + 1] -
-                                graph_row_split1_data[graph_state] + 1;
+                                graph_row_split1_data[graph_state];
       });
 
   // Compute exclusive sum of num-arcs above.
@@ -280,10 +280,10 @@ Renumbering RnntDecodingStreams::DoFisrtPassPruning(
                 idx012x = uas_row_splits3_data[idx012],
                 idx3 = idx0123 - idx012x;
         // keep the implicit epsilon self-loop
-        if (idx3 == 0) {
-          pass1_keep_data[idx0123] = 1;
-          return;
-        }
+        // if (idx3 == 0) {
+        //   pass1_keep_data[idx0123] = 1;
+        //   return;
+        // }
 
         int32_t idx01 = uas_row_ids2_data[idx012],
                 idx0 = uas_row_ids1_data[idx01],
@@ -294,9 +294,7 @@ Renumbering RnntDecodingStreams::DoFisrtPassPruning(
         int64_t state = states_values_data[idx012];
         int32_t graph_state = state % num_graph_states,
                 graph_idx0x = graph_row_split1_data[graph_state],
-                graph_idx01 =
-                    graph_idx0x + idx3 - 1;  // minus 1 as the implicit epsilon
-                                             // self-loop takes the position 0.
+                graph_idx01 = graph_idx0x + idx3 ;
         Arc arc = graph_arcs_data[graph_idx01];
 
         // keep the epsilon transitions
@@ -503,16 +501,16 @@ void RnntDecodingStreams::Advance(const Array2<float> &logprobs) {
         double this_score = this_scores_data[idx012];
 
         // handle the implicit epsilon self-loop
-        if (idx3 == 0) {
-          states_data[arc_idx] = this_state;
-          // we assume termination symbol to be 0 here.
-          scores_data[arc_idx] = this_score + logprobs_acc(idx01, 0);
-          ArcInfo ai;
-          ai.graph_arc_idx01 = -1;
-          ai.score = logprobs_acc(idx01, 0);
-          arcs_data[arc_idx] = ai;
-          return;
-        }
+        // if (idx3 == 0) {
+        //   states_data[arc_idx] = this_state;
+        //   // we assume termination symbol to be 0 here.
+        //   scores_data[arc_idx] = this_score + logprobs_acc(idx01, 0);
+        //   ArcInfo ai;
+        //   ai.graph_arc_idx01 = -1;
+        //   ai.score = logprobs_acc(idx01, 0);
+        //   arcs_data[arc_idx] = ai;
+        //   return;
+        // }
 
         const Arc *graph_arcs_data = graphs_arcs_data[idx0];
         const int32_t *graph_row_split1_data = graph_row_splits1_ptr_data[idx0];
@@ -520,9 +518,7 @@ void RnntDecodingStreams::Advance(const Array2<float> &logprobs) {
         int64_t this_context_state = this_state / num_graph_states;
         int32_t this_graph_state = this_state % num_graph_states,
                 graph_idx0x = graph_row_split1_data[this_graph_state],
-                graph_idx01 = graph_idx0x + idx3 - 1;  // minus 1 here as
-                                                       // epsilon self-loop
-                                                       // takes the position 0.
+                graph_idx01 = graph_idx0x + idx3 ;
         Arc arc = graph_arcs_data[graph_idx01];
         int64_t context_state = this_context_state;
 
