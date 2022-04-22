@@ -32,6 +32,8 @@ on:
   push:
     tags:
       - '*'
+    branches:
+      - fix-ci-3
 
 env:
   K2_BUILD_TYPE: Release
@@ -56,7 +58,9 @@ jobs:
 
   build_conda_cpu_ubuntu:
     needs: generate_build_matrix
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:16.04
     strategy:
       fail-fast: false
       matrix:
@@ -68,31 +72,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: conda-incubator/setup-miniconda@v2
-        with:
-          auto-update-conda: true
-          python-version: ${{ matrix.python-version }}
-          activate-environment: k2
-
-      - name: Display Python version
+      - name: Install miniconda
         shell: bash -l {0}
         run: |
-          python3 -c "import sys; print(sys.version)"
-          which python3
-
-      - name: Install conda dependencies
-        shell: bash -l {0}
-        run: |
-          conda install -y -q anaconda-client
-          conda install -y -q conda-build
-          conda install -y -q -c pytorch pytorch=${{ matrix.torch }} cpuonly
-
-      - name: Display conda info
-        shell: bash -l {0}
-        run: |
-          which conda
-          conda env list
-          conda info
+          apt-get update
+          apt-get install -y wget build-essential git-all lsb-release
+          wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+          chmod +x Miniconda3-latest-Linux-x86_64.sh
+          ./Miniconda3-latest-Linux-x86_64.sh -b
 
       - name: Build k2
         shell: bash -l {0}
@@ -103,15 +90,35 @@ jobs:
           K2_IS_GITHUB_ACTIONS: 1
           K2_IS_FOR_CONDA: 1
         run: |
+          echo "$HOME/miniconda3/bin" >> $GITHUB_PATH
+          echo "path: $GITHUB_PATH"
+
+          source ~/miniconda3/etc/profile.d/conda.sh
+
+          conda install -y python=${{ matrix.python-version }} cmake=3.18
+          export PATH=/github/home/miniconda3/bin:$PATH
+
+          python --version
+          python3 --version
+          conda env list
+          conda info
+          conda activate base
+          conda info
+
+          conda install -y -q -c pytorch pytorch=${{ matrix.torch }} cpuonly
+          conda install -y -q anaconda-client conda-build
+
           export K2_BUILD_TYPE=$K2_BUILD_TYPE
           ./scripts/build_conda_cpu.sh
 
       - name: Display generated files
         run: |
-          ls -lh /usr/share/miniconda/envs/k2/conda-bld/linux-64
+          # ls -lh /usr/share/miniconda/envs/k2/conda-bld/linux-64
+          ls -lh /github/home/miniconda3/conda-bld/linux-64/k2-*.tar.bz2
 
       - name: Upload generated files
         uses: actions/upload-artifact@v2
         with:
-          name: torch-${{ matrix.torch }}-python-${{ matrix.python-version }}-${{ matrix.os }}
-          path: /usr/share/miniconda/envs/k2/conda-bld/linux-64/*.tar.bz2
+          name: torch-${{ matrix.torch }}-python-${{ matrix.python-version }}-ubuntu-16.04
+          # path: /usr/share/miniconda/envs/k2/conda-bld/linux-64/*.tar.bz2
+          path: /github/home/miniconda3/conda-bld/linux-64/k2-*.tar.bz2
