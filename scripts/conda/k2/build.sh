@@ -31,11 +31,7 @@ echo "which nvcc: $(which nvcc)"
 echo "gcc version: $($CC --version)"
 echo "nvcc version: $(nvcc --version)"
 echo "PREFIX is: $PREFIX"
-echo "/usr/bin/c++ version: $(/usr/bin/c++ --version)"
-echo "c++ version: $(c++ --version)"
 
-ls -l /usr/bin
-sudo rm /usr/bin/c++
 
 export K2_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=${K2_BUILD_TYPE}"
 export K2_MAKE_ARGS="-j2"
