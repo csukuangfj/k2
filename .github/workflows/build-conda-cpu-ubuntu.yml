@@ -49,6 +49,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
       - name: Generating build matrix
         id: set-matrix
         run: |
@@ -70,8 +71,6 @@ jobs:
     steps:
       # refer to https://github.com/actions/checkout
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
 
       - name: Install miniconda
         shell: bash -l {0}
