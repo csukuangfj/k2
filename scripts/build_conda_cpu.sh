@@ -45,6 +45,7 @@ echo "K2_ROOT_DIR: $K2_ROOT_DIR"
 
 which python
 python -m torch.utils.collect_env
+which python3
 K2_PYTHON_VERSION=$(python -c "import sys; print(sys.version[:3])")
 
 if [ -z $K2_TORCH_VERSION ]; then
@@ -84,6 +85,9 @@ fi
 export K2_IS_FOR_CONDA=1
 
 export K2_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=Release -DK2_WITH_CUDA=OFF"
+
+echo "CONDA_BLD_PATH: ${CONDA_BLD_PATH}"
+echo "CONDA_PREFIX: $CONDA_PREFIX"
 
 if [ -z $K2_CONDA_TOKEN ]; then
   echo "Auto upload to anaconda.org is disabled since K2_CONDA_TOKEN is not set"
