@@ -44,7 +44,7 @@ export K2_ROOT_DIR=$k2_dir
 echo "K2_ROOT_DIR: $K2_ROOT_DIR"
 
 which python
-python -m torch.utils.collect_env
+# python -m torch.utils.collect_env
 which python3
 K2_PYTHON_VERSION=$(python -c "import sys; print(sys.version[:3])")
 
