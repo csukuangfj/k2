@@ -32,8 +32,6 @@ on:
   push:
     tags:
       - '*'
-    branches:
-      - fix-ci-3
 
 env:
   K2_BUILD_TYPE: Release
