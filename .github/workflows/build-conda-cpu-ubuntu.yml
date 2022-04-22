@@ -37,6 +37,7 @@ on:
 
 env:
   K2_BUILD_TYPE: Release
+  K2_CONDA_TOKEN: ${{ secrets.K2_CONDA_TOKEN }}
 
 jobs:
   generate_build_matrix:
@@ -75,15 +76,11 @@ jobs:
       - name: Install miniconda
         shell: bash -l {0}
         run: |
-          apt-get update
-          apt-get install -y wget build-essential git-all lsb-release
+          apt-get -qq update
+          apt-get -qq install -y wget build-essential git-all lsb-release
           wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
           chmod +x Miniconda3-latest-Linux-x86_64.sh
           ./Miniconda3-latest-Linux-x86_64.sh -b
-
-          # wget -q https://repo.anaconda.com/miniconda/Miniconda3-4.7.12.1-Linux-x86_64.sh
-          # chmod +x Miniconda3-4.7.12.1-Linux-x86_64.sh
-          # ./Miniconda3-4.7.12.1-Linux-x86_64.sh -b
 
       - name: Build k2
         shell: bash -l {0}

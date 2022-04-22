@@ -35,6 +35,7 @@ on:
 
 env:
   K2_BUILD_TYPE: Release
+  K2_CONDA_TOKEN: ${{ secrets.K2_CONDA_TOKEN }}
 
 jobs:
   generate_build_matrix:
