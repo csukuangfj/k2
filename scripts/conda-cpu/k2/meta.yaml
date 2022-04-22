@@ -15,7 +15,6 @@ build:
     - K2_BUILD_TYPE
     - K2_BUILD_VERSION
     - K2_IS_FOR_CONDA
-  script: K2_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=Release -DK2_WITH_CUDA=OFF" K2_MAKE_ARGS="-j2" python3 setup.py install --single-version-externally-managed --record=record.txt
   features:
     - cpuonly # [not osx]
 
