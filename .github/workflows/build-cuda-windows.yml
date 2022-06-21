@@ -129,7 +129,8 @@ jobs:
         run: |
           mkdir build_release
           cd build_release
-          cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DK2_WITH_CUDA=ON ..
+          K2_CMAKE_ARGS="-DK2_WITH_CUDA=ON -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCUDNN_INCLUDE_PATH=d:/a/k2/k2/cudnn-for-windows/cudnn-windows-x86_64-8.4.1.50_cuda11.6-archive/include -DCUDNN_LIBRARY_PATH=d:/a/k2/k2/cudnn-for-windows/cudnn-windows-x86_64-8.4.1.50_cuda11.6-archive/lib/cudnn.lib"
+          cmake ${K2_CMAKE_ARGS} ..
           ls -lh
 
       - name: Build k2
@@ -137,8 +138,7 @@ jobs:
         run: |
           echo "PWD: $PWD"
           cd build_release
-          K2_CMAKE_ARGS="-DK2_WITH_CUDA=ON -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCUDNN_INCLUDE_PATH=d:/a/k2/k2/cudnn-for-windows/cudnn-windows-x86_64-8.4.1.50_cuda11.6-archive/include -DCUDNN_LIBRARY_PATH=d:/a/k2/k2/cudnn-for-windows/cudnn-windows-x86_64-8.4.1.50_cuda11.6-archive/lib/cudnn.lib"
-          cmake --build . ${K2_CMAKE_ARGS} --target _k2 --config Release
+          cmake --build . --target _k2 --config Release
 
       - name: Display generated files
         shell: bash
