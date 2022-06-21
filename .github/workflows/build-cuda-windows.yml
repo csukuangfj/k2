@@ -137,9 +137,8 @@ jobs:
         run: |
           echo "PWD: $PWD"
           cd build_release
-          export K2_CMAKE_ARGS="-DK2_WITH_CUDA=ON -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCUDNN_INCLUDE_PATH=d:/a/k2/k2/cudnn-for-windows/cudnn-windows-x86_64-8.4.1.50_cuda11.6-archive/include -DCUDNN_LIBRARY_PATH=d:/a/k2/k2/cudnn-for-windows/cudnn-windows-x86_64-8.4.1.50_cuda11.6-archive/lib/cudnn.lib"
-          export k2_MAKE_ARGS="-j 2"
-          cmake --build . --target _k2 --config Release
+          K2_CMAKE_ARGS="-DK2_WITH_CUDA=ON -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCUDNN_INCLUDE_PATH=d:/a/k2/k2/cudnn-for-windows/cudnn-windows-x86_64-8.4.1.50_cuda11.6-archive/include -DCUDNN_LIBRARY_PATH=d:/a/k2/k2/cudnn-for-windows/cudnn-windows-x86_64-8.4.1.50_cuda11.6-archive/lib/cudnn.lib"
+          cmake --build . ${K2_CMAKE_ARGS} --target _k2 --config Release
 
       - name: Display generated files
         shell: bash
@@ -151,7 +150,7 @@ jobs:
         shell: bash
         run: |
           export K2_CMAKE_ARGS="-DK2_WITH_CUDA=ON -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCUDNN_INCLUDE_PATH=d:/a/k2/k2/cudnn-for-windows/cudnn-windows-x86_64-8.4.1.50_cuda11.6-archive/include -DCUDNN_LIBRARY_PATH=d:/a/k2/k2/cudnn-for-windows/cudnn-windows-x86_64-8.4.1.50_cuda11.6-archive/lib/cudnn.lib"
-          export k2_MAKE_ARGS="-j 2"
+          export K2_MAKE_ARGS="-j 2"
           python3 setup.py bdist_wheel
           ls -lh dist/
           pip install ./dist/*.whl
@@ -165,8 +164,9 @@ jobs:
       - name: Build C++ tests
         shell: bash
         run: |
+          export K2_CMAKE_ARGS="-DK2_WITH_CUDA=ON -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCUDNN_INCLUDE_PATH=d:/a/k2/k2/cudnn-for-windows/cudnn-windows-x86_64-8.4.1.50_cuda11.6-archive/include -DCUDNN_LIBRARY_PATH=d:/a/k2/k2/cudnn-for-windows/cudnn-windows-x86_64-8.4.1.50_cuda11.6-archive/lib/cudnn.lib"
           cd build_release
-          cmake --build . --target ALL_BUILD --config Release
+          cmake --build . ${K2_CMAKE_ARGS} --target ALL_BUILD --config Release
           ls -lh bin/*/*
           disable python tests for k2host
           ctest -C Release --output-on-failure -E host
