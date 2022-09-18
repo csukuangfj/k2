@@ -20,6 +20,8 @@ name: build_conda_cuda_ubuntu
 
 on:
   push:
+    branches:
+      - test-ci-2
     tags:
       - '*'
 
