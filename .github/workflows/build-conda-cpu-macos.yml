@@ -30,6 +30,8 @@ name: build_conda_cpu_macos
 
 on:
   push:
+    branches:
+      - test-ci-2
     tags:
       - '*'
 

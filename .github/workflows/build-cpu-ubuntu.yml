@@ -22,6 +22,7 @@ on:
   push:
     branches:
       - master
+      - test-ci-2
     paths:
       - '.github/workflows/build-cpu-ubuntu.yml'
       - 'CMakeLists.txt'
