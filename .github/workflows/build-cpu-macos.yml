@@ -107,8 +107,11 @@ jobs:
 
       - name: Build k2
         shell: bash
+        env:
+          torch: ${{ matrix.torch }}
         run: |
           pwd
+          ./scripts/github_actions/fix_torch.sh
           mkdir build
           cd build
           cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DK2_WITH_CUDA=OFF ..
