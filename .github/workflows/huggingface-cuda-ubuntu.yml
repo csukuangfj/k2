@@ -158,6 +158,7 @@ jobs:
           cp -v dist/*.whl huggingface/cuda/
 
           cd huggingface
+          git pull
           git add cuda
           git commit -m "upload wheel by github actions"
           git push https://csukuangfj:$HF_TOKEN@huggingface.co/csukuangfj/k2 main

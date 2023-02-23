@@ -136,6 +136,7 @@ jobs:
           cp -v dist/*.whl huggingface/cpu/
 
           cd huggingface
+          git pull
           git add cpu
           git commit -m "upload wheel by github actions"
           git push https://csukuangfj:$HF_TOKEN@huggingface.co/csukuangfj/k2 main
