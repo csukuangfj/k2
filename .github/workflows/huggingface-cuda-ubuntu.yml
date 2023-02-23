@@ -1,4 +1,4 @@
-name: Ubunut - CPU wheels for huggingface
+name: Ubunut - CUDA wheels for huggingface
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - nightly
       - upload-hugging-face
     paths:
-      - '.github/workflows/huggingface-cuda-ubuntu.yml'
+      - '.github/workflows/nightly-cuda-ubuntu.yml'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'k2/csrc/**'
@@ -21,7 +21,7 @@ on:
     - cron: "50 23 * * *"
 
 concurrency:
-  group: huggingface-ubuntu-cpu-${{ github.ref }}
+  group: huggingface-ubuntu-cuda-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -29,7 +29,7 @@ env:
 
 jobs:
   enable_nightly_build:
-    # if: github.repository == 'k2-fsa/k2'
+    if: github.repository == 'k2-fsa/k2'
     runs-on: ubuntu-latest
     outputs:
       enabled: ${{ steps.set-enabled.outputs.enabled }}
@@ -60,12 +60,12 @@ jobs:
         run: |
           # outputting for debugging purposes
           python scripts/github_actions/generate_build_matrix.py
-          MATRIX=$(python scripts/github_actions/generate_build_matrix.py)
+          MATRIX=$(python scripts/github_actions/generate_build_matrix.py --enable-cuda --disable-exclusion)
           echo "::set-output name=matrix::${MATRIX}"
 
   huggingface_cpu_ubuntu:
     needs: generate_build_matrix
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -75,6 +75,10 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
+      - uses: szenius/set-timezone@v1.0
+        with:
+          timezoneLinux: "Asia/Shanghai"
 
       - name: Display date and time
         run: date
@@ -87,40 +91,58 @@ jobs:
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
 
-      - name: Install GCC 7
-        if: startsWith(matrix.os, 'ubuntu')
+      - name: Install CUDA Toolkit ${{ matrix.cuda }}
+        env:
+          cuda: ${{ matrix.cuda }}
         run: |
-          sudo apt-get install -y gcc-7 g++-7
-          echo "CC=/usr/bin/gcc-7" >> $GITHUB_ENV
-          echo "CXX=/usr/bin/g++-7" >> $GITHUB_ENV
+          source ./scripts/github_actions/install_cuda.sh
+          echo "CUDA_HOME=${CUDA_HOME}" >> $GITHUB_ENV
+          echo "${CUDA_HOME}/bin" >> $GITHUB_PATH
+          echo "LD_LIBRARY_PATH=${CUDA_HOME}/lib:${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}" >> $GITHUB_ENV
+        shell: bash
 
-      - name: Display GCC version
+      - name: Display NVCC version
         run: |
-          gcc --version
+          which nvcc
+          nvcc --version
+
+      - name: Install GCC ${{ matrix.gcc }}
+        run: |
+          sudo apt-get install -y gcc-${{ matrix.gcc }} g++-${{ matrix.gcc }}
+          echo "CC=/usr/bin/gcc-${{ matrix.gcc }}" >> $GITHUB_ENV
+          echo "CXX=/usr/bin/g++-${{ matrix.gcc }}" >> $GITHUB_ENV
+          echo "CUDAHOSTCXX=/usr/bin/g++-${{ matrix.gcc }}" >> $GITHUB_ENV
 
       - name: Install PyTorch ${{ matrix.torch }}
+        env:
+          cuda: ${{ matrix.cuda }}
+          torch: ${{ matrix.torch }}
         shell: bash
         run: |
-          python3 -m pip install -qq --upgrade pip
-          python3 -m pip install -qq wheel twine typing_extensions
-          python3 -m pip install torch==${{ matrix.torch }}+cpu -f https://download.pytorch.org/whl/torch_stable.html
-          python3 -m pip install --upgrade numpy
+          python3 -m pip install --upgrade pip
+          python3 -m pip install wheel twine typing_extensions
+          python3 -m pip install bs4 requests tqdm
 
+          ./scripts/github_actions/install_torch.sh
           python3 -c "import torch; print('torch version:', torch.__version__)"
+
+      - name: Install git lfs
+        run: |
+          sudo apt-get install -y git-lfs
+
+      - name: Download cudnn 8.0
+        env:
+          cuda: ${{ matrix.cuda }}
+        run: |
+          ./scripts/github_actions/install_cudnn.sh
 
       - name: Build pip packages
         shell: bash
         run: |
-          export K2_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DK2_WITH_CUDA=OFF"
+          export K2_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=$BUILD_TYPE"
           export K2_MAKE_ARGS="-j2"
           python3 setup.py bdist_wheel
           ls -lh dist/
-
-      - name: Upload Wheel
-        uses: actions/upload-artifact@v2
-        with:
-          name: torch-${{ matrix.torch }}-python-${{ matrix.python-version }}-ubuntu-18.04
-          path: dist/*.whl
 
       # https://huggingface.co/docs/hub/spaces-github-actions
       - name: Publish to huggingface
@@ -133,9 +155,9 @@ jobs:
 
           git clone https://huggingface.co/csukuangfj/k2 huggingface
 
-          cp -v dist/*.whl huggingface/cpu/
+          cp -v dist/*.whl huggingface/cuda/
 
           cd huggingface
-          git add cpu
+          git add cuda
           git commit -m "upload wheel by github actions"
           git push https://csukuangfj:$HF_TOKEN@huggingface.co/csukuangfj/k2 main
