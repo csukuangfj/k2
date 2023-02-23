@@ -15,6 +15,13 @@ def get_args():
     )
 
     parser.add_argument(
+        "--disable-exclusion",
+        action="store_true",
+        default=False,
+        help="True to ",
+    )
+
+    parser.add_argument(
         "--test-only-latest-torch",
         action="store_true",
         default=False,
@@ -109,7 +116,11 @@ def generate_build_matrix(enable_cuda, test_only_latest_torch):
 
     ans = []
     for torch, python_cuda in matrix.items():
-        if torch in excluded_torch_versions and enable_cuda:
+        if (
+            not args.disable_exclusion
+            and torch in excluded_torch_versions
+            and enable_cuda
+        ):
             continue
 
         python_versions = python_cuda["python-version"]

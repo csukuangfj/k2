@@ -6,7 +6,7 @@ on:
       - nightly
       - upload-hugging-face
     paths:
-      - '.github/workflows/nightly-cuda-ubuntu.yml'
+      - '.github/workflows/huggingface-cuda-ubuntu.yml'
       - 'CMakeLists.txt'
       - 'cmake/**'
       - 'k2/csrc/**'
