@@ -1,0 +1,99 @@
+# Copyright (c)  2021  Xiaomi Corporation (authors: Fangjun Kuang)
+
+name: Ubunut - CPU wheels for huggingface
+
+on:
+  push:
+    tags:
+      - '*'
+    branches:
+      - upload-hugging-face
+
+
+concurrency:
+  group: huggingface-ubuntu-cpu-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  generate_build_matrix:
+    # see https://github.com/pytorch/pytorch/pull/50633
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Generating build matrix
+        id: set-matrix
+        run: |
+          # outputting for debugging purposes
+          python scripts/github_actions/generate_build_matrix.py
+          MATRIX=$(python scripts/github_actions/generate_build_matrix.py)
+          echo "::set-output name=matrix::${MATRIX}"
+
+  ubuntu-cpu-huggingface:
+    needs: generate_build_matrix
+    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+      matrix:
+        ${{ fromJson(needs.generate_build_matrix.outputs.matrix) }}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
+
+      - name: Install PyTorch ${{ matrix.torch }}
+        shell: bash
+        run: |
+          python3 -m pip install -qq --upgrade pip
+          python3 -m pip install -q wheel twine typing_extensions
+          python3 -m pip install -qq torch==${{ matrix.torch }}
+
+
+      - name: Build pip packages
+        shell: bash
+        env:
+          K2_IS_FOR_PYPI: 1
+          K2_IS_STABLE: 1
+        run: |
+          tag=$(python3 -c "import sys; print('.'.join(sys.version.split('.')[:2]))")
+          export K2_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=$BUILD_TYPE"
+          export K2_MAKE_ARGS="-j2"
+          python3 setup.py bdist_wheel --python-tag=py${tag}
+          ls -lh dist/
+
+      - name: Upload Wheel
+        uses: actions/upload-artifact@v2
+        with:
+          name: torch-${{ matrix.torch }}-python-${{ matrix.python-version }}-${{ matrix.os }}-cpu
+          path: dist/*.whl
+
+      # https://huggingface.co/docs/hub/spaces-github-actions
+      - name: Publish to huggingface
+        # if: ${{ github.repository_owner == 'k2-fsa' }}
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git clone https://huggingface.co/csukuangfj/k2 huggingface
+
+          cp -v dist/*.whl huggingface/cpu/
+
+          cd huggingface
+          git add cpu
+          git commit -m "upload wheel by github actions"
+          git push https://csukuangfj:$HF_TOKEN@huggingface.co/csukuangfj/k2 main
