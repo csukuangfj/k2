@@ -37,7 +37,6 @@ jobs:
 
   ubuntu-cpu-huggingface:
     needs: generate_build_matrix
-    runs-on: ${{ matrix.os }}
     runs-on: ubuntu-18.04
     strategy:
       fail-fast: false
