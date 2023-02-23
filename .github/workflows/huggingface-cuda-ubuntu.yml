@@ -63,7 +63,7 @@ jobs:
           MATRIX=$(python scripts/github_actions/generate_build_matrix.py --enable-cuda --disable-exclusion)
           echo "::set-output name=matrix::${MATRIX}"
 
-  huggingface_cpu_ubuntu:
+  huggingface_cuda_ubuntu:
     needs: generate_build_matrix
     runs-on: ubuntu-latest
     strategy:
