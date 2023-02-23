@@ -31,7 +31,7 @@ def get_args():
     return parser.parse_args()
 
 
-def generate_build_matrix(enable_cuda, test_only_latest_torch):
+def generate_build_matrix(enable_cuda, test_only_latest_torch, disable_exclusion):
     matrix = {
         # there are issues in serializing ragged tensors in 1.5.0 and 1.5.1
         #  "1.5.0": {
@@ -116,11 +116,7 @@ def generate_build_matrix(enable_cuda, test_only_latest_torch):
 
     ans = []
     for torch, python_cuda in matrix.items():
-        if (
-            not args.disable_exclusion
-            and torch in excluded_torch_versions
-            and enable_cuda
-        ):
+        if not disable_exclusion and torch in excluded_torch_versions and enable_cuda:
             continue
 
         python_versions = python_cuda["python-version"]
@@ -141,6 +137,7 @@ def main():
     generate_build_matrix(
         enable_cuda=args.enable_cuda,
         test_only_latest_torch=args.test_only_latest_torch,
+        disable_exclusion=args.disable_exclusion,
     )
 
 

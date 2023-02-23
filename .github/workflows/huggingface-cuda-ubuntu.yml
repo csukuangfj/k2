@@ -29,7 +29,7 @@ env:
 
 jobs:
   enable_nightly_build:
-    if: github.repository == 'k2-fsa/k2'
+    # if: github.repository == 'k2-fsa/k2'
     runs-on: ubuntu-latest
     outputs:
       enabled: ${{ steps.set-enabled.outputs.enabled }}
