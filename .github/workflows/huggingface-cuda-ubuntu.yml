@@ -91,12 +91,12 @@ jobs:
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
 
-      - name: Install GCC ${{ matrix.gcc }}
+      - name: Install GCC 7
         run: |
-          sudo apt-get install -y gcc-${{ matrix.gcc }} g++-${{ matrix.gcc }}
-          echo "CC=/usr/bin/gcc-${{ matrix.gcc }}" >> $GITHUB_ENV
-          echo "CXX=/usr/bin/g++-${{ matrix.gcc }}" >> $GITHUB_ENV
-          echo "CUDAHOSTCXX=/usr/bin/g++-${{ matrix.gcc }}" >> $GITHUB_ENV
+          sudo apt-get install -y gcc-7 g++-7
+          echo "CC=/usr/bin/gcc-7" >> $GITHUB_ENV
+          echo "CXX=/usr/bin/g++-7" >> $GITHUB_ENV
+          echo "CUDAHOSTCXX=/usr/bin/g++-7" >> $GITHUB_ENV
 
       - name: Install CUDA Toolkit ${{ matrix.cuda }}
         env:
