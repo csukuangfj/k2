@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - nightly
-      - upload-hugging-face
     paths:
       - '.github/workflows/huggingface-cuda-ubuntu.yml'
       - 'CMakeLists.txt'
