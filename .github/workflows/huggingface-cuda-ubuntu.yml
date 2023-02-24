@@ -91,6 +91,13 @@ jobs:
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
 
+      - name: Install GCC ${{ matrix.gcc }}
+        run: |
+          sudo apt-get install -y gcc-${{ matrix.gcc }} g++-${{ matrix.gcc }}
+          echo "CC=/usr/bin/gcc-${{ matrix.gcc }}" >> $GITHUB_ENV
+          echo "CXX=/usr/bin/g++-${{ matrix.gcc }}" >> $GITHUB_ENV
+          echo "CUDAHOSTCXX=/usr/bin/g++-${{ matrix.gcc }}" >> $GITHUB_ENV
+
       - name: Install CUDA Toolkit ${{ matrix.cuda }}
         env:
           cuda: ${{ matrix.cuda }}
@@ -106,12 +113,10 @@ jobs:
           which nvcc
           nvcc --version
 
-      - name: Install GCC ${{ matrix.gcc }}
+      - name: Display GCC version
         run: |
-          sudo apt-get install -y gcc-${{ matrix.gcc }} g++-${{ matrix.gcc }}
-          echo "CC=/usr/bin/gcc-${{ matrix.gcc }}" >> $GITHUB_ENV
-          echo "CXX=/usr/bin/g++-${{ matrix.gcc }}" >> $GITHUB_ENV
-          echo "CUDAHOSTCXX=/usr/bin/g++-${{ matrix.gcc }}" >> $GITHUB_ENV
+          which gcc
+          gcc --version
 
       - name: Install PyTorch ${{ matrix.torch }}
         env:
