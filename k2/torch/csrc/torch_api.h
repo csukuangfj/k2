@@ -26,6 +26,20 @@
 
 #include "torch/script.h"
 
+#ifdef _WIN32
+#define K2_EXPORT __declspec(dllexport)
+#define K2_IMPORT __declspec(dllimport)
+#else
+#define K2_EXPORT
+#define K2_IMPORT
+#endif
+
+#ifdef K2_BUILD_MAIN_LIB
+#define K2_API K2_EXPORT
+#else
+#define K2_API K2_IMPORT
+#endif
+
 namespace k2 {
 
 class RaggedShape;
@@ -92,8 +106,8 @@ using FsaClassPtr = std::shared_ptr<FsaClass>;
    @return  Return either a standard or a modified CTC topology as an FSA
             depending on whether `modified` is false or true.
  */
-FsaClassPtr GetCtcTopo(int32_t max_token, bool modified = false,
-                       torch::Device device = torch::kCPU);
+K2_API FsaClassPtr GetCtcTopo(int32_t max_token, bool modified = false,
+                              torch::Device device = torch::kCPU);
 
 /*
   Create a trivial graph which has only two states. On state 0, there are

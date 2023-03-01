@@ -1,5 +1,7 @@
 include_directories(${CMAKE_SOURCE_DIR})
 
+add_definitions(-DK2_BUILD_MAIN_LIB)
+
 # it is located in k2/csrc/cmake/transform.cmake
 include(transform)
 set(k2_torch_srcs
