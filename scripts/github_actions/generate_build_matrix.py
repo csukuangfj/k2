@@ -102,9 +102,13 @@ def generate_build_matrix(enable_cuda, test_only_latest_torch, disable_exclusion
             "python-version": ["3.7", "3.8", "3.9", "3.10", "3.11"],
             "cuda": ["11.6", "11.7"],  # default 11.7
         },
+        "2.0.0": {
+            "python-version": ["3.8", "3.9", "3.10", "3.11"],
+            "cuda": ["11.7", "11.8"],  # default ???
+        },
     }
     if test_only_latest_torch:
-        latest = "1.13.1"
+        latest = "2.0.0"
         matrix = {latest: matrix[latest]}
 
     # We only have limited spaces in anaconda, so we exclude some
