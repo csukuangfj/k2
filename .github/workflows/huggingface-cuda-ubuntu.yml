@@ -149,6 +149,9 @@ jobs:
           export K2_MAKE_ARGS="-j2"
           python3 setup.py bdist_wheel
           ls -lh dist/
+          df -h
+          rm -rf build
+          df -h
 
       # https://huggingface.co/docs/hub/spaces-github-actions
       - name: Publish to huggingface

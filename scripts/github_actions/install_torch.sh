@@ -182,3 +182,7 @@ if [ x"${url}" == "x" ]; then
 else
   retry python3 -m pip install -q $package -f $url
 fi
+
+ls -lh ~/.cache/pip || echo
+du -h ~/.cache/pip || echo
+rm -rfv ~/.cache/pip
