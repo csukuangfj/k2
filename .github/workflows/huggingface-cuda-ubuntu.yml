@@ -41,7 +41,7 @@ jobs:
 
   huggingface_cuda_ubuntu:
     needs: generate_build_matrix
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:

@@ -42,34 +42,34 @@ def generate_build_matrix(enable_cuda, test_only_latest_torch, disable_exclusion
         #      "python-version": ["3.6", "3.7", "3.8"],
         #      "cuda": ["10.1", "10.2"],
         #  },
-        "1.6.0": {
-            "python-version": ["3.6", "3.7", "3.8"],
-            "cuda": ["10.1", "10.2"],
-        },
-        "1.7.0": {
-            "python-version": ["3.6", "3.7", "3.8"],
-            "cuda": ["10.1", "10.2", "11.0"],
-        },
-        "1.7.1": {
-            "python-version": ["3.6", "3.7", "3.8", "3.9"],
-            "cuda": ["10.1", "10.2", "11.0"],
-        },
-        "1.8.0": {
-            "python-version": ["3.6", "3.7", "3.8", "3.9"],
-            "cuda": ["10.1", "10.2", "11.1"],
-        },
-        "1.8.1": {
-            "python-version": ["3.6", "3.7", "3.8", "3.9"],
-            "cuda": ["10.1", "10.2", "11.1"],
-        },
-        "1.9.0": {
-            "python-version": ["3.6", "3.7", "3.8", "3.9"],
-            "cuda": ["10.2", "11.1"],
-        },
-        "1.9.1": {
-            "python-version": ["3.6", "3.7", "3.8", "3.9"],
-            "cuda": ["10.2", "11.1"],
-        },
+        #  "1.6.0": {
+        #      "python-version": ["3.6", "3.7", "3.8"],
+        #      "cuda": ["10.1", "10.2"],
+        #  },
+        #  "1.7.0": {
+        #      "python-version": ["3.6", "3.7", "3.8"],
+        #      "cuda": ["10.1", "10.2", "11.0"],
+        #  },
+        #  "1.7.1": {
+        #      "python-version": ["3.6", "3.7", "3.8", "3.9"],
+        #      "cuda": ["10.1", "10.2", "11.0"],
+        #  },
+        #  "1.8.0": {
+        #      "python-version": ["3.6", "3.7", "3.8", "3.9"],
+        #      "cuda": ["10.1", "10.2", "11.1"],
+        #  },
+        #  "1.8.1": {
+        #      "python-version": ["3.6", "3.7", "3.8", "3.9"],
+        #      "cuda": ["10.1", "10.2", "11.1"],
+        #  },
+        #  "1.9.0": {
+        #      "python-version": ["3.6", "3.7", "3.8", "3.9"],
+        #      "cuda": ["10.2", "11.1"],
+        #  },
+        #  "1.9.1": {
+        #      "python-version": ["3.6", "3.7", "3.8", "3.9"],
+        #      "cuda": ["10.2", "11.1"],
+        #  },
         "1.10.0": {
             "python-version": ["3.6", "3.7", "3.8", "3.9"],
             "cuda": ["10.2", "11.1", "11.3"],
@@ -104,11 +104,15 @@ def generate_build_matrix(enable_cuda, test_only_latest_torch, disable_exclusion
         },
         "2.0.0": {
             "python-version": ["3.8", "3.9", "3.10", "3.11"],
-            "cuda": ["11.7", "11.8"],  # default ???
+            "cuda": ["11.7", "11.8"],  # default 11.7
+        },
+        "2.0.1": {
+            "python-version": ["3.8", "3.9", "3.10", "3.11"],
+            "cuda": ["11.7", "11.8"],  # default 11.7
         },
     }
     if test_only_latest_torch:
-        latest = "2.0.0"
+        latest = "2.0.1"
         matrix = {latest: matrix[latest]}
 
     # We only have limited spaces in anaconda, so we exclude some
