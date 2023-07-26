@@ -5,7 +5,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Python API reference &mdash; k2 1.14 documentation</title>
+  <title>Python API reference &mdash; k2 1.24.3 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -21,7 +21,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="version" href="version.html" />
-    <link rel="prev" title="Fsa algorithms" href="../python_tutorials/fsa_algo/fsa_algo.html" /> 
+    <link rel="prev" title="How to debug _k2" href="../python_tutorials/_k2/how-to-debug.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -32,7 +32,7 @@
             <a href="../index.html" class="icon icon-home"> k2
           </a>
               <div class="version">
-                1.14
+                1.24.3
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -71,7 +71,7 @@
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
       <li>Python API reference</li>
       <li class="wy-breadcrumbs-aside">
-              <a href="https://github.com/k2-fsa/k2/blob/master/k2/docs/source/python_api/index.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/k2-fsa/k2/blob/master/docs/source/python_api/index.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -101,12 +101,15 @@
 <li class="toctree-l2"><a class="reference internal" href="api.html#determinize">determinize</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#do-rnnt-pruning">do_rnnt_pruning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#expand-ragged-attributes">expand_ragged_attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#get-aux-labels">get_aux_labels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#get-best-matching-stats">get_best_matching_stats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#get-lattice">get_lattice</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#get-rnnt-logprobs">get_rnnt_logprobs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#get-rnnt-logprobs-joint">get_rnnt_logprobs_joint</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#get-rnnt-logprobs-pruned">get_rnnt_logprobs_pruned</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#get-rnnt-logprobs-smoothed">get_rnnt_logprobs_smoothed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#get-rnnt-prune-ranges">get_rnnt_prune_ranges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#get-rnnt-prune-ranges-deprecated">get_rnnt_prune_ranges_deprecated</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#index-add">index_add</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#index-fsa">index_fsa</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#index-select">index_select</a></li>
@@ -122,10 +125,13 @@
 <li class="toctree-l2"><a class="reference internal" href="api.html#linear-fsa">linear_fsa</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#linear-fsa-with-self-loops">linear_fsa_with_self_loops</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#linear-fst">linear_fst</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#monotonic-lower-bound">monotonic_lower_bound</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#linear-fst-with-self-loops">linear_fst_with_self_loops</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#mutual-information-recursion">mutual_information_recursion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#mwer-loss">mwer_loss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#one-best-decoding">one_best_decoding</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#properties-to-str">properties_to_str</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#prune-on-arc-post">prune_on_arc_post</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#pruned-ranges-to-lattice">pruned_ranges_to_lattice</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#random-fsa">random_fsa</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#random-fsa-vec">random_fsa_vec</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#random-paths">random_paths</a></li>
@@ -133,12 +139,19 @@
 <li class="toctree-l2"><a class="reference internal" href="api.html#remove-epsilon-and-add-self-loops">remove_epsilon_and_add_self_loops</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#remove-epsilon-self-loops">remove_epsilon_self_loops</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#replace-fsa">replace_fsa</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#reverse">reverse</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#rnnt-loss">rnnt_loss</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#rnnt-loss-pruned">rnnt_loss_pruned</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#rnnt-loss-simple">rnnt_loss_simple</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#rnnt-loss-smoothed">rnnt_loss_smoothed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#shortest-path">shortest_path</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#simple-ragged-index-select">simple_ragged_index_select</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#swoosh-l">swoosh_l</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#swoosh-l-forward">swoosh_l_forward</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#swoosh-l-forward-and-deriv">swoosh_l_forward_and_deriv</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#swoosh-r">swoosh_r</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#swoosh-r-forward">swoosh_r_forward</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#swoosh-r-forward-and-deriv">swoosh_r_forward_and_deriv</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#to-dot">to_dot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#to-str">to_str</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#to-str-simple">to_str_simple</a></li>
@@ -147,10 +160,13 @@
 <li class="toctree-l2"><a class="reference internal" href="api.html#trivial-graph">trivial_graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#union">union</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#ctcloss">CtcLoss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#decodestateinfo">DecodeStateInfo</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#densefsavec">DenseFsaVec</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#determinizeweightpushingtype">DeterminizeWeightPushingType</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#fsa">Fsa</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#mwerloss">MWERLoss</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#nbest">Nbest</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#onlinedenseintersecter">OnlineDenseIntersecter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#raggedshape">RaggedShape</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#raggedtensor">RaggedTensor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#rnntdecodingconfig">RnntDecodingConfig</a></li>
@@ -160,15 +176,15 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="api.html#k2-ragged">k2.ragged</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.html#id48">cat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#id51">cat</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#create-ragged-shape2">create_ragged_shape2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#create-ragged-tensor">create_ragged_tensor</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#id49">index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#id52">index</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#index-and-sum">index_and_sum</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#random-ragged-shape">random_ragged_shape</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#id50">regular_ragged_shape</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#id51">RaggedShape</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#id73">RaggedTensor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#id53">regular_ragged_shape</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#id54">RaggedShape</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#id76">RaggedTensor</a></li>
 </ul>
 </li>
 </ul>
@@ -179,7 +195,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../python_tutorials/fsa_algo/fsa_algo.html" class="btn btn-neutral float-left" title="Fsa algorithms" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../python_tutorials/_k2/how-to-debug.html" class="btn btn-neutral float-left" title="How to debug _k2" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="version.html" class="btn btn-neutral float-right" title="version" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

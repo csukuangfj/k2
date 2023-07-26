@@ -83,10 +83,20 @@ expand_ragged_attributes
 
 .. autofunction:: expand_ragged_attributes
 
+get_aux_labels
+--------------
+
+.. autofunction:: get_aux_labels
+
 get_best_matching_stats
 -----------------------
 
 .. autofunction:: get_best_matching_stats
+
+get_lattice
+-----------
+
+.. autofunction:: get_lattice
 
 get_rnnt_logprobs
 -----------------
@@ -112,6 +122,11 @@ get_rnnt_prune_ranges
 ---------------------
 
 .. autofunction:: get_rnnt_prune_ranges
+
+get_rnnt_prune_ranges_deprecated
+--------------------------------
+
+.. autofunction:: get_rnnt_prune_ranges_deprecated
 
 index_add
 ---------
@@ -188,15 +203,25 @@ linear_fst
 
 .. autofunction:: linear_fst
 
-monotonic_lower_bound
----------------------
+linear_fst_with_self_loops
+--------------------------
 
-.. autofunction:: monotonic_lower_bound
+.. autofunction:: linear_fst_with_self_loops
 
 mutual_information_recursion
 ----------------------------
 
 .. autofunction:: mutual_information_recursion
+
+mwer_loss
+---------
+
+.. autofunction:: mwer_loss
+
+one_best_decoding
+-----------------
+
+.. autofunction:: one_best_decoding
 
 properties_to_str
 -----------------
@@ -207,6 +232,11 @@ prune_on_arc_post
 -----------------
 
 .. autofunction:: prune_on_arc_post
+
+pruned_ranges_to_lattice
+------------------------
+
+.. autofunction:: pruned_ranges_to_lattice
 
 random_fsa
 ----------
@@ -243,6 +273,11 @@ replace_fsa
 
 .. autofunction:: replace_fsa
 
+reverse
+-------
+
+.. autofunction:: reverse
+
 rnnt_loss
 ---------
 
@@ -272,6 +307,36 @@ simple_ragged_index_select
 --------------------------
 
 .. autofunction:: simple_ragged_index_select
+
+swoosh_l
+--------
+
+.. autofunction:: swoosh_l
+
+swoosh_l_forward
+----------------
+
+.. autofunction:: swoosh_l_forward
+
+swoosh_l_forward_and_deriv
+--------------------------
+
+.. autofunction:: swoosh_l_forward_and_deriv
+
+swoosh_r
+--------
+
+.. autofunction:: swoosh_r
+
+swoosh_r_forward
+----------------
+
+.. autofunction:: swoosh_r_forward
+
+swoosh_r_forward_and_deriv
+--------------------------
+
+.. autofunction:: swoosh_r_forward_and_deriv
 
 to_dot
 ------
@@ -316,6 +381,9 @@ forward
 
 .. automethod:: k2.CtcLoss.forward
 
+DecodeStateInfo
+---------------
+
 DenseFsaVec
 -----------
 
@@ -351,6 +419,11 @@ name
 ^^^^
 
 .. autoattribute:: k2.DeterminizeWeightPushingType.name
+
+value
+^^^^^
+
+.. autoattribute:: k2.DeterminizeWeightPushingType.value
 
 Fsa
 ---
@@ -500,11 +573,6 @@ grad
 
 .. autoattribute:: k2.Fsa.grad
 
-labels
-^^^^^^
-
-.. autoattribute:: k2.Fsa.labels
-
 num_arcs
 ^^^^^^^^
 
@@ -530,8 +598,21 @@ shape
 
 .. autoattribute:: k2.Fsa.shape
 
+MWERLoss
+--------
+
+forward
+^^^^^^^
+
+.. automethod:: k2.MWERLoss.forward
+
 Nbest
 -----
+
+from_lattice
+^^^^^^^^^^^^
+
+.. automethod:: k2.Nbest.from_lattice
 
 intersect
 ^^^^^^^^^
@@ -547,6 +628,19 @@ total_scores
 ^^^^^^^^^^^^
 
 .. automethod:: k2.Nbest.total_scores
+
+OnlineDenseIntersecter
+----------------------
+
+__init__
+^^^^^^^^
+
+.. automethod:: k2.OnlineDenseIntersecter.__init__
+
+decode
+^^^^^^
+
+.. automethod:: k2.OnlineDenseIntersecter.decode
 
 RaggedShape
 -----------
@@ -699,6 +793,11 @@ __str__
 
 .. automethod:: k2.RaggedTensor.__str__
 
+add
+^^^
+
+.. automethod:: k2.RaggedTensor.add
+
 arange
 ^^^^^^
 
@@ -723,6 +822,11 @@ index
 ^^^^^
 
 .. automethod:: k2.RaggedTensor.index
+
+logsumexp
+^^^^^^^^^
+
+.. automethod:: k2.RaggedTensor.logsumexp
 
 max
 ^^^
@@ -1162,6 +1266,11 @@ __str__
 
 .. automethod:: k2.ragged.RaggedTensor.__str__
 
+add
+^^^
+
+.. automethod:: k2.ragged.RaggedTensor.add
+
 arange
 ^^^^^^
 
@@ -1186,6 +1295,11 @@ index
 ^^^^^
 
 .. automethod:: k2.ragged.RaggedTensor.index
+
+logsumexp
+^^^^^^^^^
+
+.. automethod:: k2.ragged.RaggedTensor.logsumexp
 
 max
 ^^^

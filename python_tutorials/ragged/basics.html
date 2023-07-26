@@ -5,7 +5,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Basics &mdash; k2 1.14 documentation</title>
+  <title>Basics &mdash; k2 1.24.3 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -32,7 +32,7 @@
             <a href="../../index.html" class="icon icon-home"> k2
           </a>
               <div class="version">
-                1.14
+                1.24.3
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -54,6 +54,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../fsa/index.html">Fsa tutorials</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../fsa_algo/index.html">Fsa algorithms tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_k2/index.html">_k2</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../python_api/index.html">Python API reference</a></li>
@@ -77,7 +78,7 @@
           <li><a href="index.html">Ragged tensor tutorials</a> &raquo;</li>
       <li>Basics</li>
       <li class="wy-breadcrumbs-aside">
-              <a href="https://github.com/k2-fsa/k2/blob/master/k2/docs/source/python_tutorials/ragged/basics.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/k2-fsa/k2/blob/master/docs/source/python_tutorials/ragged/basics.rst" class="fa fa-github"> Edit on GitHub</a>
       </li>
   </ul>
   <hr/>
@@ -146,12 +147,12 @@ ideas (See <a class="reference external" href="https://www.tensorflow.org/guide/
 <p>If the data type is <code class="docutils literal notranslate"><span class="pre">k2::Arc</span></code>, which has the following definition
 <a class="reference external" href="https://github.com/k2-fsa/k2/blob/master/k2/csrc/fsa.h#L31">in C++</a>:</p>
 <blockquote>
-<div><div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">Arc</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">src_state</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">dest_state</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">label</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="kt">float</span><span class="w"> </span><span class="n">score</span><span class="p">;</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<div><div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">Arc</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">src_state</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">dest_state</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">label</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">float</span><span class="w"> </span><span class="n">score</span><span class="p">;</span>
+<span class="p">};</span>
 </pre></div>
 </div>
 </div></blockquote>
