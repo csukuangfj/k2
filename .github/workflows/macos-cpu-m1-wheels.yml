@@ -2,6 +2,8 @@ name: build-wheels-cpu-macos-m1
 
 on:
   push:
+    branches:
+      - fix-macos-m1-wheel
     tags:
       - '*'
   workflow_dispatch:
@@ -51,6 +53,7 @@ jobs:
           CIBW_BEFORE_BUILD: pip install torch==${{ matrix.torch}} cmake numpy
           CIBW_BUILD: ${{ matrix.python-version }}-*
           CIBW_REPAIR_WHEEL_COMMAND_MACOS: ""
+          CIBW_ENVIRONMENT: K2_CMAKE_ARGS="-DCMAKE_OSX_ARCHITECTURES='arm64'"
           CIBW_BUILD_VERBOSITY: 3
           CIBW_ARCHS_MACOS: arm64
 

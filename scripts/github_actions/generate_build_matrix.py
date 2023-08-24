@@ -174,6 +174,7 @@ def generate_build_matrix(
 
     excluded_python_versions = ["3.6", "3.7"]
     enabled_torch_versions = []
+    enabled_torch_versions.append("2.0.1")
 
     if for_macos_m1:
         matrix = dict()
