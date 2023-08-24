@@ -79,6 +79,7 @@ option(K2_ENABLE_BENCHMARK "Whether to enable benchmark" ON)
 option(K2_WITH_CUDA "Whether to build k2 with CUDA" ${_K2_WITH_CUDA})
 option(K2_ENABLE_NVTX "Whether to build k2 with the NVTX library" ON)
 option(K2_ENABLE_TESTS "Whether to build tests" ON)
+option(K2_BUILD_TORCH_EXAMPLES "Whether to build exectuables for torch api examples" ON)
 
 # You have to enable this option if you will run k2 on a machine different from
 # the one you used to build k2 and the two machines have different types of GPUs
