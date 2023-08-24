@@ -178,7 +178,7 @@ def generate_build_matrix(
 
     if for_macos_m1:
         matrix = dict()
-        matrix["1.8.0"] = {"python-version": ["3.8"]}
+        #  matrix["1.8.0"] = {"python-version": ["3.8"]}
         matrix["1.8.1"] = {"python-version": ["3.8"]}
         matrix["1.9.0"] = {"python-version": ["3.8", "3.9"]}
         matrix["1.9.1"] = {"python-version": ["3.8", "3.9"]}

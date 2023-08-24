@@ -50,7 +50,8 @@ jobs:
       - name: ${{ matrix.torch }} ${{ matrix.python-version }}
         uses: pypa/cibuildwheel@v2.11.4
         env:
-          CIBW_BEFORE_BUILD: pip install torch==${{ matrix.torch}} cmake numpy
+          # CIBW_BEFORE_BUILD: pip install torch==${{ matrix.torch}} cmake numpy
+          CIBW_BEFORE_BUILD: pip install https://download.pytorch.org/whl/cpu/torch-${{ matrix.torch }}-${{ matrix.python-version }}-none-macosx_11_0_arm64.whl cmake numpy
           CIBW_BUILD: ${{ matrix.python-version }}-*
           CIBW_REPAIR_WHEEL_COMMAND_MACOS: ""
           CIBW_ENVIRONMENT: K2_CMAKE_ARGS="-DCMAKE_OSX_ARCHITECTURES='arm64' -DK2_BUILD_TORCH_EXAMPLES=OFF"
