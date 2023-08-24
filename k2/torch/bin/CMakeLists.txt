@@ -1,6 +1,9 @@
 # it is located in k2/csrc/cmake/transform.cmake
 include(transform)
 
+add_library(k2_fbank features.cc)
+target_link_libraries(k2_fbank PUBLIC ${TORCH_LIBRARIES} kaldifeat_core)
+
 set(bin_dep_libs
   ${TORCH_LIBRARIES}
   k2_torch
