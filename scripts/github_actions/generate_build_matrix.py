@@ -210,6 +210,9 @@ def generate_build_matrix(
         matrix["1.13.1"] = {"python-version": ["3.7", "3.8", "3.9", "3.10"]}
         matrix["2.0.0"] = {"python-version": ["3.8", "3.9", "3.10", "3.11"]}
         matrix["2.0.1"] = {"python-version": ["3.8", "3.9", "3.10", "3.11"]}
+        matrix["2.1.0"] = {"python-version": ["3.8", "3.9", "3.10", "3.11"]}
+        matrix["2.1.1"] = {"python-version": ["3.8", "3.9", "3.10", "3.11"]}
+        matrix["2.1.2"] = {"python-version": ["3.8", "3.9", "3.10", "3.11"]}
 
     ans = []
     for torch, python_cuda in matrix.items():
