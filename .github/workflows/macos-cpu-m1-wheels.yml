@@ -45,21 +45,41 @@ jobs:
         with:
           fetch-depth: 0
 
-      # see https://cibuildwheel.readthedocs.io/en/stable/changelog/
-      # for a list of versions
-      - name: ${{ matrix.torch }} ${{ matrix.python-version }}
-        uses: pypa/cibuildwheel@v2.11.4
-        env:
-          CIBW_BEFORE_BUILD: pip install torch==${{ matrix.torch}} pipx cmake numpy
-          CIBW_BUILD: ${{ matrix.python-version }}-*
-          CIBW_REPAIR_WHEEL_COMMAND_MACOS: ""
-          CIBW_BUILD_VERBOSITY: 3
-          CIBW_ARCHS_MACOS: arm64
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install PyTorch ${{ matrix.torch }}
+        shell: bash
+        run: |
+          python3 -m pip install -qq --upgrade pip
+          python3 -m pip install -qq wheel twine dataclasses
+          python3 -m pip install -qq torch==${{ matrix.torch }} numpy cmake
+
+          python3 -c "import torch; print('torch version:', torch.__version__)"
+
+      - name: Build wheel
+        shell: bash
+        run: |
+          export K2_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DK2_WITH_CUDA=OFF"
+          export K2_MAKE_ARGS="-j2"
+          python3 setup.py bdist_wheel
+          python3 setup.py install
+          ls -lh dist
+          python3 -m k2.version
+          python3 setup.py clean
+          python3 -m k2.version
 
       - name: Display wheels
         shell: bash
         run: |
+
+          mkdir ./wheelhouse/
+          mv dist/*.whl ./wheelhouse
+
           ls -lh ./wheelhouse/
+
       - name: Upload Wheel
         uses: actions/upload-artifact@v2
         with:

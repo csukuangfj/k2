@@ -194,7 +194,7 @@ def generate_build_matrix(
     excluded_python_versions = ["3.6", "3.7"]
     enabled_torch_versions = []
 
-    if for_macos_m1:
+    if for_macos_m1 and not test_only_latest_torch:
         matrix = dict()
         matrix["1.8.0"] = {"python-version": ["3.8"]}
         matrix["1.8.1"] = {"python-version": ["3.8"]}
