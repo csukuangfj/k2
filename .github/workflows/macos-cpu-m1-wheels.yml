@@ -34,7 +34,7 @@ jobs:
   build_wheels_macos_cpu_m1:
     needs: generate_build_matrix
     name: ${{ matrix.torch }} ${{ matrix.python-version }}
-    runs-on: flyci-macos-large-latest-m1
+    runs-on: macos-14
     strategy:
       fail-fast: false
       matrix:
