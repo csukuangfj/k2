@@ -57,7 +57,7 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: |
-          pip install -q torch==${{ matrix.torch}} cmake numpy wheel>=0.40.0 twine setuptools
+          pip install -q torch==${{ matrix.torch}} cmake numpy wheel>=0.40.0 twine setuptools -f https://download.pytorch.org/whl/torch
 
       - name: Build wheel
         shell: bash
