@@ -150,16 +150,30 @@ elseif(APPLE)
   )
   set(K2_OS "${_product_name} ${_product_version} ${_build_version}")
 elseif(WIN32)
-  execute_process(COMMAND
-    wmic os get caption,version
-    OUTPUT_VARIABLE K2_OS_TWO_LINES
+  # Try PowerShell first to get OS name + version
+  execute_process(
+    COMMAND powershell -NoProfile -Command "(Get-CimInstance Win32_OperatingSystem).Caption + ' ' + (Get-CimInstance Win32_OperatingSystem).Version"
+    OUTPUT_VARIABLE K2_ONNX_OS
     OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
   )
-  # Now K2_OS_TWO_LINES contains something like
-  #  Caption                          Version
-  #  Microsoft Windows 10 Pro         10.0.18362
-  string(REPLACE "\n" ";" K2_OS_LIST ${K2_OS_TWO_LINES})
-  list(GET K2_OS_LIST 1 K2_OS)
+
+  if(NOT K2_ONNX_OS)
+    message(WARNING "PowerShell not available, falling back to cmd /c ver")
+    # Fallback: cmd.exe /c ver (only version info, less detailed)
+    execute_process(
+      COMMAND cmd /c ver
+      OUTPUT_VARIABLE _cmd_out
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
+    string(REPLACE "\r" "" _cmd_out "${_cmd_out}")
+    if(_cmd_out)
+      set(K2_ONNX_OS "Windows ${_cmd_out}")
+    else()
+      set(K2_ONNX_OS "Windows (version unknown)")
+    endif()
+  endif()
 else()
   set(K2_OS "Unknown")
 endif()
