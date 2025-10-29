@@ -28,9 +28,9 @@ if [[ $TORCH_VERSION =~ 2.2.* && $CUDA_VERSION =~ 12.* ]]; then
 fi
 
 # python3 -m pip install scikit-build
-python3 -m pip install -U pip cmake "numpy<=1.26.4"
-python3 -m pip install wheel twine typing_extensions
-python3 -m pip install bs4 requests tqdm auditwheel
+python3 -m pip install --no-cache-dir -U pip cmake "numpy<=1.26.4"
+python3 -m pip install --no-cache-dir wheel twine typing_extensions
+python3 -m pip install --no-cache-dir bs4 requests tqdm auditwheel
 
 echo "Installing torch"
 ./install_torch.sh

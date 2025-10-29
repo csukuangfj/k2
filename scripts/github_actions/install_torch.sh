@@ -342,9 +342,9 @@ function retry() {
 }
 
 if [ x"${url}" == "x" ]; then
-  retry python3 -m pip install -q $package
+  retry python3 -m pip install --no-cache-dir -q $package
 else
-  retry python3 -m pip install -q $package -f $url
+  retry python3 -m pip install --no-cache-dir -q $package -f $url
 fi
 
 rm -rf ~/.cache/pip

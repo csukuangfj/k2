@@ -58,6 +58,10 @@ jobs:
           echo "pwd: $PWD"
           echo "github.workspace ${{ github.workspace }}"
 
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+
       # see https://github.com/pytorch/test-infra/blob/9e3d392690719fac85bad0c9b67f530e48375ca1/tools/scripts/generate_binary_build_matrix.py
       # https://github.com/pytorch/builder/tree/main/manywheel
       # https://github.com/pytorch/builder/pull/476
