@@ -331,7 +331,7 @@ def generate_build_matrix(
             ),
         },
         "2.9.0": {
-            "python-version": ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"],
+            "python-version": ["3.10", "3.11", "3.12", "3.13", "3.14"],
             "cuda": (
                 ["12.6", "12.8", "12.9", "13.0"]  # default 12.8
                 if not for_windows
