@@ -31,6 +31,12 @@ if(K2_WITH_CUDA)
     endforeach()
 
     string(REPLACE ";" " " CMAKE_CUDA_FLAGS "${TEMP_LIST}")
+
+    message(STATUS "CMAKE_CUDA_FLAGS: ${CMAKE_CUDA_FLAGS}")
+    string(REPLACE "-gencode arch=compute_50,code=sm_50" "" CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS}")
+    message(STATUS "Final CMAKE_CUDA_FLAGS: ${CMAKE_CUDA_FLAGS}")
+
+
   endif()
 
   set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} ${TORCH_CXX_FLAGS}")
