@@ -46,7 +46,7 @@ fi
 yum -y install zlib-devel bzip2-devel libffi-devel xz-devel wget redhat-lsb-core
 
 INSTALLED_PYTHON_VERSION=${PYTHON_VERSION}.2
-if [[ $PYTHON_VERSION == "3.13" ]]; then
+if [[ $PYTHON_VERSION == "3.13" || $PYTHON_VERSION == "3.14" ]]; then
   INSTALLED_PYTHON_VERSION=${PYTHON_VERSION}.0
 fi
 echo "Installing $INSTALLED_PYTHON_VERSION"
