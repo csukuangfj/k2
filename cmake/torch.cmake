@@ -33,7 +33,11 @@ if(K2_WITH_CUDA)
     string(REPLACE ";" " " CMAKE_CUDA_FLAGS "${TEMP_LIST}")
 
     message(STATUS "CMAKE_CUDA_FLAGS: ${CMAKE_CUDA_FLAGS}")
-    string(REPLACE "-gencode arch=compute_50,code=sm_50" "" CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS}")
+    if(CUDA_VERSION VERSION_GREATER_EQUAL "13.0")
+      string(REPLACE "-gencode arch=compute_50,code=sm_50" "" CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS}")
+      string(REPLACE "-gencode arch=compute_100a,code=sm_100a" "" CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS}")
+      string(REPLACE "-gencode arch=compute_101a,code=sm_101a" "" CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS}")
+    endif()
     message(STATUS "Final CMAKE_CUDA_FLAGS: ${CMAKE_CUDA_FLAGS}")
 
 
