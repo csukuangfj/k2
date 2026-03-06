@@ -49,12 +49,19 @@ void ExclusiveSum(ContextPtr c, int32_t n, const SrcPtr src, DestPtr dest) {
     // See https://github.com/NVIDIA/cub/issues/302
     // for why to prefer ExclusiveScan over ExclusiveSum
     //
+
+#if CUDA_VERSION >= 13000
+    auto op_sum = cub::Sum{};
+#else
+    auto op_sum = cub::Sum();
+#endif
+
     K2_CUDA_SAFE_CALL(cub::DeviceScan::ExclusiveScan(
-        nullptr, temp_storage_bytes, src, dest, cub::Sum(), SumType(0), n,
+        nullptr, temp_storage_bytes, src, dest, op_sum, SumType(0), n,
         c->GetCudaStream()));
     Array1<int8_t> d_temp_storage(c, temp_storage_bytes);
     K2_CUDA_SAFE_CALL(cub::DeviceScan::ExclusiveScan(
-        d_temp_storage.Data(), temp_storage_bytes, src, dest, cub::Sum(),
+        d_temp_storage.Data(), temp_storage_bytes, src, dest, op_sum,
         SumType(0), n, c->GetCudaStream()));
   }
 }
