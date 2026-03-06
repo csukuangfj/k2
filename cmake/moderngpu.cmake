@@ -20,25 +20,23 @@ function(download_moderngpu)
 
   include(FetchContent)
 
-  # this is the latest commit of modern gpu as of 2022-04-03
-  set(moderngpu_URL  "https://github.com/moderngpu/moderngpu/archive/8ec9ac0de8672de7217d014917eedec5317f75f3.zip")
-  set(moderngpu_URL2 "https://hub.nuaa.cf/moderngpu/moderngpu/archive/8ec9ac0de8672de7217d014917eedec5317f75f3.zip")
-  set(moderngpu_HASH "SHA256=1c20ffbb81d6f7bbe6107aaa5ee6d37392677c8a5fc7894935149c3ef0a3c2fb")
+  # this is the latest commit of modern gpu as of 2026-03-06
+  set(moderngpu_URL  "https://github.com/moderngpu/moderngpu/archive/267cc8d02c03f00f1656f1205c61c946a1e530b0.zip")
+  set(moderngpu_HASH "SHA256=433f8b9ba12fce80a932110a75d03d638b90d08a1cd41255c4a992121fdfe696")
 
   # If you don't have access to the Internet,
   # please pre-download moderngpu
   set(possible_file_locations
-    $ENV{HOME}/Downloads/moderngpu-8ec9ac0de8672de7217d014917eedec5317f75f3.zip
-    ${CMAKE_SOURCE_DIR}/moderngpu-8ec9ac0de8672de7217d014917eedec5317f75f3.zip
-    ${CMAKE_BINARY_DIR}/moderngpu-8ec9ac0de8672de7217d014917eedec5317f75f3.zip
-    /tmp/moderngpu-8ec9ac0de8672de7217d014917eedec5317f75f3.zip
-    /star-fj/fangjun/download/github/moderngpu-8ec9ac0de8672de7217d014917eedec5317f75f3.zip
+    $ENV{HOME}/Downloads/moderngpu-267cc8d02c03f00f1656f1205c61c946a1e530b0.zip
+    ${CMAKE_SOURCE_DIR}/moderngpu-267cc8d02c03f00f1656f1205c61c946a1e530b0.zip
+    ${CMAKE_BINARY_DIR}/moderngpu-267cc8d02c03f00f1656f1205c61c946a1e530b0.zip
+    /tmp/moderngpu-267cc8d02c03f00f1656f1205c61c946a1e530b0.zip
+    /star-fj/fangjun/download/github/moderngpu-267cc8d02c03f00f1656f1205c61c946a1e530b0.zip
   )
 
   foreach(f IN LISTS possible_file_locations)
     if(EXISTS ${f})
       set(moderngpu_URL  "file://${f}")
-      set(moderngpu_URL2)
       break()
     endif()
   endforeach()
@@ -46,7 +44,6 @@ function(download_moderngpu)
   FetchContent_Declare(moderngpu
     URL
       ${moderngpu_URL}
-      ${moderngpu_URL2}
     URL_HASH          ${moderngpu_HASH}
   )
 

@@ -298,6 +298,49 @@ case ${torch} in
         ;;
     esac
     ;;
+  2.9.*)
+    case ${cuda} in
+      12.6)
+        package="torch==${torch}+cu126"
+        # https://download.pytorch.org/whl/nightly/torch/
+        url=https://download.pytorch.org/whl/torch/
+        ;;
+      12.8)
+        package="torch==${torch}+cu128"
+        url=https://download.pytorch.org/whl/torch/
+        ;;
+      12.9)
+        package="torch==${torch}+cu129"
+        url=https://download.pytorch.org/whl/torch/
+        ;;
+      13.0)
+        package="torch==${torch}+cu130"
+        url=https://download.pytorch.org/whl/torch/
+        ;;
+    esac
+    ;;
+  2.10.*)
+    case ${cuda} in
+      12.6)
+        package="torch==${torch}+cu126"
+        # https://download.pytorch.org/whl/nightly/torch/
+        url=https://download.pytorch.org/whl/torch/
+        ;;
+      12.8)
+        # default 12.8
+        package="torch==${torch}+cu128"
+        url=https://download.pytorch.org/whl/torch/
+        ;;
+      12.9)
+        package="torch==${torch}+cu129"
+        url=https://download.pytorch.org/whl/torch/
+        ;;
+      13.0)
+        package="torch==${torch}+cu130"
+        url=https://download.pytorch.org/whl/torch/
+        ;;
+    esac
+    ;;
   # 2.8.*)
   #   case ${cuda} in
   #     12.6)
@@ -321,9 +364,9 @@ function retry() {
 }
 
 if [ x"${url}" == "x" ]; then
-  retry python3 -m pip install -q $package
+  retry python3 -m pip install --no-cache-dir -q $package
 else
-  retry python3 -m pip install -q $package -f $url
+  retry python3 -m pip install --no-cache-dir -q $package -f $url
 fi
 
 rm -rf ~/.cache/pip

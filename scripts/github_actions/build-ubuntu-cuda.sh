@@ -28,9 +28,9 @@ if [[ $TORCH_VERSION =~ 2.2.* && $CUDA_VERSION =~ 12.* ]]; then
 fi
 
 # python3 -m pip install scikit-build
-python3 -m pip install -U pip cmake "numpy<=1.26.4"
-python3 -m pip install wheel twine typing_extensions
-python3 -m pip install bs4 requests tqdm auditwheel
+python3 -m pip install --no-cache-dir -U pip cmake "numpy<=1.26.4"
+python3 -m pip install --no-cache-dir wheel twine typing_extensions
+python3 -m pip install --no-cache-dir bs4 requests tqdm auditwheel
 
 echo "Installing torch"
 ./install_torch.sh
@@ -46,7 +46,7 @@ fi
 yum -y install zlib-devel bzip2-devel libffi-devel xz-devel wget redhat-lsb-core
 
 INSTALLED_PYTHON_VERSION=${PYTHON_VERSION}.2
-if [[ $PYTHON_VERSION == "3.13" ]]; then
+if [[ $PYTHON_VERSION == "3.13" || $PYTHON_VERSION == "3.14" ]]; then
   INSTALLED_PYTHON_VERSION=${PYTHON_VERSION}.0
 fi
 echo "Installing $INSTALLED_PYTHON_VERSION"
@@ -111,11 +111,13 @@ auditwheel --verbose repair \
   --exclude libcublas.so \
   --exclude libcublas.so.11 \
   --exclude libcublas.so.12 \
+  --exclude libcublas.so.13 \
   --exclude libcublasLt.so \
   --exclude libcublasLt.so.11 \
   --exclude libcublasLt.so.12 \
   --exclude libcudart.so.11.0 \
   --exclude libcudart.so.12 \
+  --exclude libcudart.so.13 \
   --exclude libcudnn.so.8 \
   --exclude libcufft.so \
   --exclude libcufft.so.11 \
@@ -132,6 +134,7 @@ auditwheel --verbose repair \
   --exclude libnvrtc.so \
   --exclude libnvrtc.so.11.2 \
   --exclude libnvrtc.so.12 \
+  --exclude libnvrtc.so.13 \
   --exclude libshm.so \
   --exclude libtorch_cuda_cpp.so \
   --exclude libtorch_cuda_cu.so \

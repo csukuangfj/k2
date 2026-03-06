@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - wheel
-      - torch-2.8.0
+      - torch-2.10.0
     tags:
       - '*'
   workflow_dispatch:
@@ -93,6 +93,7 @@ jobs:
               # cp312-cp312
               # cp313-cp313
               # cp313-cp313t  (no gil)
+              # cp314-cp314
               if [[ $PYTHON_VERSION == "3.6" ]]; then
                 python_dir=/opt/python/cp36-cp36m
                 export PYTHONPATH=/opt/python/cp36-cp36m/lib/python3.6/site-packages:$PYTHONPATH
@@ -117,6 +118,9 @@ jobs:
               elif [[ $PYTHON_VERSION == "3.13" ]]; then
                 python_dir=/opt/python/cp313-cp313
                 export PYTHONPATH=/opt/python/cp313-cp313/lib/python3.13/site-packages:$PYTHONPATH
+              elif [[ $PYTHON_VERSION == "3.14" ]]; then
+                python_dir=/opt/python/cp314-cp314
+                export PYTHONPATH=/opt/python/cp314-cp314/lib/python3.14/site-packages:$PYTHONPATH
               else
                 echo "Unsupported Python version $PYTHON_VERSION"
                 exit 1
@@ -147,7 +151,7 @@ jobs:
             rm -rf huggingface
             export GIT_LFS_SKIP_SMUDGE=1
 
-            git clone https://huggingface.co/csukuangfj/k2 huggingface
+            git clone https://huggingface.co/csukuangfj2/k2 huggingface
             cd huggingface
             git pull
 
@@ -158,4 +162,4 @@ jobs:
             git lfs track "*.whl"
             git add .
             git commit -m "upload ubuntu-cpu wheel for torch ${{ matrix.torch }} python ${{ matrix.python-version }}"
-            git push https://csukuangfj:$HF_TOKEN@huggingface.co/csukuangfj/k2 main
+            git push https://csukuangfj2:$HF_TOKEN@huggingface.co/csukuangfj2/k2 main

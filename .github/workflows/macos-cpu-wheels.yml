@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - wheel
-      - torch-2.8.0-2
+      - torch-2.10.0-2
     tags:
       - '*'
   workflow_dispatch:
@@ -57,7 +57,7 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: |
-          pip install -q torch==${{ matrix.torch}} cmake numpy wheel>=0.40.0 twine setuptools
+          pip install -q torch==${{ matrix.torch}} cmake numpy wheel>=0.40.0 twine setuptools -f https://download.pytorch.org/whl/torch
 
       - name: Build wheel
         shell: bash
@@ -107,7 +107,7 @@ jobs:
             rm -rf huggingface
             export GIT_LFS_SKIP_SMUDGE=1
 
-            git clone https://huggingface.co/csukuangfj/k2 huggingface
+            git clone https://huggingface.co/csukuangfj2/k2 huggingface
             cd huggingface
             git pull
 
@@ -117,4 +117,4 @@ jobs:
             git lfs track "*.whl"
             git add .
             git commit -m "upload macos wheel for torch ${{ matrix.torch }} python ${{ matrix.python-version }}"
-            git push https://csukuangfj:$HF_TOKEN@huggingface.co/csukuangfj/k2 main
+            git push https://csukuangfj2:$HF_TOKEN@huggingface.co/csukuangfj2/k2 main

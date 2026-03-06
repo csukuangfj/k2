@@ -22,7 +22,7 @@ ls -lh $PYTHON_INSTALL_DIR/lib/
 # python3 -m pip install scikit-build
 python3 -m pip install -U pip cmake "numpy<=1.26.4"
 python3 -m pip install wheel twine typing_extensions
-python3 -m pip install bs4 requests tqdm auditwheel
+python3 -m pip install -U bs4 requests tqdm auditwheel setuptools
 
 echo "Installing torch $TORCH_VERSION"
 
