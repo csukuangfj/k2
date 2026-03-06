@@ -20,24 +20,22 @@ function(download_cub)
 
   include(FetchContent)
 
-  set(cub_URL  "https://github.com/NVlabs/cub/archive/1.15.0.tar.gz")
-  set(cub_URL2 "https://hub.nuaa.cf/NVlabs/cub/archive/1.15.0.tar.gz")
-  set(cub_HASH "SHA256=1781ee5eb7f00acfee5bff88e3acfc67378f6b3c24281335e18ae19e1f2ff685")
+  set(cub_URL  "https://github.com/NVlabs/cub/archive/2.1.0.tar.gz")
+  set(cub_HASH "SHA256=60f7633c81c8c0e970bcf59fa6d19a0ed136524dbbcd52b94ea42721dde8cd6b")
 
   # If you don't have access to the Internet,
   # please pre-download cub
   set(possible_file_locations
-    $ENV{HOME}/Downloads/cub-1.15.0.tar.gz
-    ${CMAKE_SOURCE_DIR}/cub-1.15.0.tar.gz
-    ${CMAKE_BINARY_DIR}/cub-1.15.0.tar.gz
-    /tmp/cub-1.15.0.tar.gz
-    /star-fj/fangjun/download/github/cub-1.15.0.tar.gz
+    $ENV{HOME}/Downloads/cub-2.1.0.tar.gz
+    ${CMAKE_SOURCE_DIR}/cub-2.1.0.tar.gz
+    ${CMAKE_BINARY_DIR}/cub-2.1.0.tar.gz
+    /tmp/cub-2.1.0.tar.gz
+    /star-fj/fangjun/download/github/cub-2.1.0.tar.gz
   )
 
   foreach(f IN LISTS possible_file_locations)
     if(EXISTS ${f})
       set(cub_URL  "file://${f}")
-      set(cub_URL2)
       break()
     endif()
   endforeach()
@@ -45,7 +43,6 @@ function(download_cub)
   FetchContent_Declare(cub
     URL
       ${cub_URL}
-      ${cub_URL2}
     URL_HASH          ${cub_HASH}
   )
 

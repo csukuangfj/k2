@@ -50,11 +50,7 @@ void ExclusiveSum(ContextPtr c, int32_t n, const SrcPtr src, DestPtr dest) {
     // for why to prefer ExclusiveScan over ExclusiveSum
     //
 
-#if CUDA_VERSION >= 13000
-    auto op_sum = cub::Sum{};
-#else
     auto op_sum = cub::Sum();
-#endif
 
     K2_CUDA_SAFE_CALL(cub::DeviceScan::ExclusiveScan(
         nullptr, temp_storage_bytes, src, dest, op_sum, SumType(0), n,
