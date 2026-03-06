@@ -50,7 +50,7 @@ void ExclusiveSum(ContextPtr c, int32_t n, const SrcPtr src, DestPtr dest) {
     // for why to prefer ExclusiveScan over ExclusiveSum
     //
 
-    auto op_sum = cub::Sum();
+    auto op_sum = cuda::std::plus<SumType>();
 
     K2_CUDA_SAFE_CALL(cub::DeviceScan::ExclusiveScan(
         nullptr, temp_storage_bytes, src, dest, op_sum, SumType(0), n,
