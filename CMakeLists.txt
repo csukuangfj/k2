@@ -241,7 +241,12 @@ if(K2_WITH_CUDA)
   set(CMAKE_CUDA_STANDARD ${CMAKE_CXX_STANDARD})
 
   include(cmake/select_compute_arch.cmake)
-  cuda_select_nvcc_arch_flags(K2_COMPUTE_ARCH_FLAGS)
+  if(DEFINED ENV{TORCH_CUDA_ARCH_LIST})
+    message(STATUS "Using TORCH_CUDA_ARCH_LIST from environment: $ENV{TORCH_CUDA_ARCH_LIST}")
+    cuda_select_nvcc_arch_flags(K2_COMPUTE_ARCH_FLAGS $ENV{TORCH_CUDA_ARCH_LIST})
+  else()
+    cuda_select_nvcc_arch_flags(K2_COMPUTE_ARCH_FLAGS)
+  endif()
   message(STATUS "K2_COMPUTE_ARCH_FLAGS: ${K2_COMPUTE_ARCH_FLAGS}")
   message(STATUS "CUDA_VERSION: ${CUDA_VERSION}")
 
