@@ -551,11 +551,16 @@ struct PairInputIterator {
   explicit PairInputIterator(const T *t) : t_(t), offset_(0) {}
   __device__ __forceinline__ PairInputIterator(const T *t, int32_t offset)
       : t_(t), offset_(offset) {}
-  __device__ __forceinline__ Pair<T> operator[](int32_t idx) const {
+  K2_CUDA_HOSTDEV Pair<T> operator[](int32_t idx) const {
     return Pair<T>{t_[idx + offset_], idx + offset_};
   }
-  __device__ __forceinline__ PairInputIterator operator+(int32_t offset) {
-    return PairInputIterator{t_, offset + offset_};
+  template <typename U>
+  K2_CUDA_HOSTDEV PairInputIterator operator+(U offset) {
+    return PairInputIterator{t_, static_cast<int32_t>(offset + offset_)};
+  }
+  K2_CUDA_HOSTDEV PairInputIterator &operator+=(int32_t offset) {
+    offset_ += offset;
+    return *this;
   }
   const T *t_;
   int32_t offset_;
@@ -588,9 +593,19 @@ struct PairOutputIterator {  // outputs just the index of the pair.
       const {
     return PairOutputIteratorDeref<T>(i_);
   }
+  template <typename U>
   __host__ __device__ __forceinline__ PairOutputIterator
-  operator+(int32_t offset) {
+  operator+(U offset) const {
     return PairOutputIterator{i_ + offset};
+  }
+  __host__ __device__ __forceinline__ PairOutputIterator
+  operator-(int32_t offset) const {
+    return PairOutputIterator{i_ - offset};
+  }
+  __host__ __device__ __forceinline__ PairOutputIterator &operator+=(
+      int32_t offset) {
+    i_ += offset;
+    return *this;
   }
   int32_t *i_;
 };

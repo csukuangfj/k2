@@ -60,6 +60,15 @@ struct PtrPtr {
     tmp.data += n;
     return tmp;
   }
+#if defined(USE_HIP)
+  // rocPRIM's scan dereferences `input - 1` on its offset path, so it needs
+  // operator-(int) on the iterator; NVIDIA cub does not call it.
+  __host__ __device__ __forceinline__ PtrPtr operator-(int32_t n) const {
+    PtrPtr tmp(*this);
+    tmp.data -= n;
+    return tmp;
+  }
+#endif
   __host__ __device__ __forceinline__ const T &operator*() const {
     return **data;
   }
@@ -86,6 +95,14 @@ struct ConstReversedPtr {
     tmp.data -= n;
     return tmp;
   }
+#if defined(USE_HIP)
+  __host__ __device__ __forceinline__ ConstReversedPtr
+  operator-(int32_t n) const {
+    ConstReversedPtr tmp(*this);
+    tmp.data += n;  // reversed: subtracting an offset moves forward in memory
+    return tmp;
+  }
+#endif
   __host__ __device__ __forceinline__ const T &operator*() const {
     return *data;
   }
@@ -108,6 +125,13 @@ struct ReversedPtr {
     tmp.data -= n;
     return tmp;
   }
+#if defined(USE_HIP)
+  __host__ __device__ __forceinline__ ReversedPtr operator-(int32_t n) const {
+    ReversedPtr tmp(*this);
+    tmp.data += n;  // reversed: subtracting an offset moves forward in memory
+    return tmp;
+  }
+#endif
   __host__ __device__ __forceinline__ T &operator*() { return *data; }
 };
 
@@ -833,7 +857,7 @@ Array1<T> Index(const Array1<T> &src, const Array1<int32_t> &indexes,
   DeviceType d = c->GetDeviceType();
   if (allow_minus_one) {
     if (d == kCpu) {
-#pragma unroll(4)
+#pragma unroll 4
       for (int32_t i = 0; i < ans_dim; i++) {
         int32_t index = index_data[i];
         T value = (index < 0 ? default_value : src_data[index]);
@@ -849,7 +873,7 @@ Array1<T> Index(const Array1<T> &src, const Array1<int32_t> &indexes,
     }
   } else {
     if (d == kCpu) {
-#pragma unroll(4)
+#pragma unroll 4
       for (int32_t i = 0; i < ans_dim; i++)
         ans_data[i] = src_data[index_data[i]];
     } else {
@@ -879,10 +903,10 @@ Array2<T> IndexRows(const Array2<T> &src, const Array1<int32_t> &indexes,
       for (int32_t i = 0; i < ans_dim0; i++) {
         int32_t index = index_data[i];
         if (index < 0) {
-#pragma unroll(4)
+#pragma unroll 4
           for (int32_t j = 0; j < dim1; j++) ans_acc(i, j) = T(0);
         } else {
-#pragma unroll(4)
+#pragma unroll 4
           for (int32_t j = 0; j < dim1; j++) ans_acc(i, j) = src_acc(index, j);
         }
       }
@@ -897,7 +921,7 @@ Array2<T> IndexRows(const Array2<T> &src, const Array1<int32_t> &indexes,
     if (d == kCpu) {
       for (int32_t i = 0; i < ans_dim0; i++) {
         int32_t index = index_data[i];
-#pragma unroll(4)
+#pragma unroll 4
         for (int32_t j = 0; j < dim1; j++) ans_acc(i, j) = src_acc(index, j);
       }
     } else {

@@ -38,7 +38,7 @@ jobs:
   build_wheels_macos_cpu:
     needs: generate_build_matrix
     name: ${{ matrix.torch }} ${{ matrix.python-version }}
-    runs-on: macos-14
+    runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
@@ -50,9 +50,16 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        if: matrix.python-version != '3.15'
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
+
+      - name: Setup Python
+        if: matrix.python-version == '3.15'
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.15.0'
 
       - name: Install dependencies
         shell: bash
@@ -111,8 +118,9 @@ jobs:
             cd huggingface
             git pull
 
-            mkdir -p macos
-            cp -v ../wheelhouse/*.whl ./macos
+            d=macos/1.24.4.dev20260625/
+            mkdir -p $d
+            cp -v ../wheelhouse/*.whl $d
             git status
             git lfs track "*.whl"
             git add .

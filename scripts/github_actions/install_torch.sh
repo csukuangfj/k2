@@ -21,6 +21,28 @@ if [ x"$TORCH_VERSION" != x"" ] && [ x"$CUDA_VERSION" != x"" ]; then
     cuda=$CUDA_VERSION
 fi
 
+if [ x"$TORCH_VERSION" != x"" ] && [ x"$ROCM_VERSION" != x"" ]; then
+    torch=$TORCH_VERSION
+    rocm=$ROCM_VERSION
+fi
+
+# Handle ROCm PyTorch installations separately.
+# Use --index-url so pip resolves torch and all its deps (triton-rocm etc.)
+# from the ROCm index directly.
+if [ x"${rocm}" != x"" ]; then
+  url=https://download.pytorch.org/whl/rocm${rocm}
+  echo "Installing ROCm PyTorch: torch==${torch}+rocm${rocm} from $url"
+
+  function retry() {
+    $* || (sleep 1 && $*) || (sleep 2 && $*) || (sleep 4 && $*) || (sleep 8 && $*)
+  }
+
+  retry python3 -m pip install --no-cache-dir -q "torch==${torch}+rocm${rocm}" --index-url "$url"
+
+  rm -rf ~/.cache/pip
+  exit 0
+fi
+
 case ${torch} in
   1.5.*)
     case ${cuda} in
@@ -359,6 +381,76 @@ case ${torch} in
       13.0)
         # default 13.0
         package="torch==${torch}+cu130"
+        url=https://download.pytorch.org/whl/torch/
+        ;;
+    esac
+    ;;
+  2.12.*)
+    case ${cuda} in
+      12.6)
+        package="torch==${torch}+cu126"
+        # https://download.pytorch.org/whl/nightly/torch/
+        url=https://download.pytorch.org/whl/torch/
+        ;;
+      13.0)
+        # default 13.0
+        package="torch==${torch}+cu130"
+        url=https://download.pytorch.org/whl/torch/
+        ;;
+      13.2)
+        # default 13.0
+        package="torch==${torch}+cu132"
+        url=https://download.pytorch.org/whl/torch/
+        ;;
+    esac
+    ;;
+  2.13.*)
+    case ${cuda} in
+      12.6)
+        package="torch==${torch}+cu126"
+        # https://download.pytorch.org/whl/nightly/torch/
+        url=https://download.pytorch.org/whl/torch/
+        ;;
+      13.0)
+        # default 13.0
+        package="torch==${torch}+cu130"
+        url=https://download.pytorch.org/whl/torch/
+        ;;
+      13.2)
+        # default 13.0
+        package="torch==${torch}+cu132"
+        url=https://download.pytorch.org/whl/torch/
+        ;;
+    esac
+    ;;
+  2.14.*)
+    case ${cuda} in
+      12.6)
+        package="torch==${torch}+cu126"
+        # https://download.pytorch.org/whl/nightly/torch/
+        url=https://download.pytorch.org/whl/torch/
+        ;;
+      13.0)
+        # default 13.0
+        package="torch==${torch}+cu130"
+        url=https://download.pytorch.org/whl/torch/
+        ;;
+      13.2)
+        # default 13.0
+        package="torch==${torch}+cu132"
+        url=https://download.pytorch.org/whl/torch/
+        ;;
+    esac
+    ;;
+  2.15.*)
+    case ${cuda} in
+      13.2)
+        # default 13.2
+        package="torch==${torch}+cu132"
+        url=https://download.pytorch.org/whl/torch/
+        ;;
+      13.4)
+        package="torch==${torch}+cu134"
         url=https://download.pytorch.org/whl/torch/
         ;;
     esac

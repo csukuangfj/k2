@@ -15,9 +15,25 @@ if [ -z $TORCH_VERSION ]; then
   exit 1
 fi
 
+if [ -z "$PYTHON_INSTALL_DIR" ]; then
+  echo "Please set the environment variable PYTHON_INSTALL_DIR"
+  echo "Example: export PYTHON_INSTALL_DIR=/opt/python/cp310-cp310"
+  exit 1
+fi
+
+export PATH=$PYTHON_INSTALL_DIR/bin:$PATH
+export LD_LIBRARY_PATH=$PYTHON_INSTALL_DIR/lib:$LD_LIBRARY_PATH
+
 python3 -m pip install -U pip cmake "numpy<=1.26.4"
-python3 -m pip install wheel twine typing_extensions
-python3 -m pip install -U bs4 requests tqdm auditwheel setuptools
+python3 -m pip install -U wheel twine typing_extensions
+python3 -m pip install -U bs4 requests tqdm auditwheel patchelf
+# torch < 2.0 uses `from pkg_resources import packaging` which was removed in setuptools >= 72
+if [[ "${TORCH_VERSION%%.*}" -lt 2 ]]; then
+  python3 -m pip install -U "setuptools<72"
+else
+  python3 -m pip install -U setuptools
+fi
+patchelf --version
 
 echo "Installing torch $TORCH_VERSION"
 
@@ -34,11 +50,6 @@ python3 -m pip install -qq torch==$TORCH_VERSION+cpu -f https://download.pytorch
 python3 -c "import torch; print(torch.__file__)"
 python3 -m torch.utils.collect_env
 
-export PATH=$PYTHON_INSTALL_DIR/bin:$PATH
-
-python3 --version
-which python3
-
 rm -rf ~/.cache/pip >/dev/null 2>&1
 yum clean all >/dev/null 2>&1
 
@@ -52,15 +63,20 @@ export CMAKE_CUDA_COMPILER_LAUNCHER=
 export K2_CMAKE_ARGS=" -DPYTHON_EXECUTABLE=$PYTHON_INSTALL_DIR/bin/python3 "
 export K2_MAKE_ARGS=" -j2 "
 
+python3 -m pip install --upgrade wheel
+# torch < 2.0 needs setuptools < 72 (which still has pkg_resources)
+if [[ "${TORCH_VERSION%%.*}" -lt 2 ]]; then
+  python3 -m pip install --upgrade "setuptools<72"
+else
+  python3 -m pip install --upgrade setuptools
+fi
+
 python3 setup.py bdist_wheel
 if [[ x"$IS_2_28" == x"1" ]]; then
   plat=manylinux_2_28_x86_64
 else
   plat=manylinux_2_17_x86_64
 fi
-export PATH=$PYTHON_INSTALL_DIR/bin:$PATH
-python3 --version
-which python3
 
 pushd dist
 unzip *.whl
@@ -96,3 +112,30 @@ auditwheel --verbose repair \
   dist/*.whl
 
 ls -lh  /var/www/wheelhouse
+
+# Use patchelf to add nvidia rpath entries to the _k2 shared library
+pushd /var/www/wheelhouse
+whl=$(ls *.whl)
+mkdir -p _tmp_whl
+pushd _tmp_whl
+unzip -o ../$whl
+so_file=$(ls _k2.cpython-*.so)
+echo "Patching rpath for $so_file"
+current_rpath=$(patchelf --print-rpath "$so_file")
+echo "Current rpath: $current_rpath"
+new_rpath="\$ORIGIN/nvidia/nvtx/lib:\$ORIGIN/nvidia/cuda_runtime/lib:\$ORIGIN/nvidia/cuda_nvrtc/lib:${current_rpath}"
+echo "New rpath: $new_rpath"
+patchelf --set-rpath "$new_rpath" "$so_file"
+echo "Verified rpath:"
+patchelf --print-rpath "$so_file"
+python3 -c "
+import zipfile, os
+with zipfile.ZipFile(os.path.join('..', '$whl'), 'w', zipfile.ZIP_DEFLATED) as zf:
+    for root, dirs, files in os.walk('.'):
+        for f in files:
+            path = os.path.join(root, f)
+            zf.write(path, path[2:])
+"
+popd
+rm -rf _tmp_whl
+popd
